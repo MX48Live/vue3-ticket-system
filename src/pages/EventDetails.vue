@@ -1,4 +1,5 @@
 <template>
+    <div class="container">
     <h1>Event Details</h1>
     <table>
         <thead>
@@ -17,6 +18,7 @@
             <TicketItem v-for="ticket in TicketList.ticket_list" :key="ticket.id" :ticket="ticket" mode="view"/>
         </tbody>
     </table>
+    </div>
 </template>
 
 <script setup>
