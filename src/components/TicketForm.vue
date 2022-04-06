@@ -39,12 +39,12 @@
 
 <script setup>
     import { reactive } from 'vue';
-    import { ticketListStore } from "@/stores/ticketlist"
+    import { dataTickets } from "@/stores/data_tickets"
     import { useAddNewTicket } from "@/use/useAddNewTicket"
     import { useUpdateTicket } from "@/use/useUpdateTicket"
     import { useDeleteTicket } from "@/use/useDeleteTicket"
     import TicketForm from "@/components/TicketForm.vue"
-    const TicketList = ticketListStore()
+    const data_tickets = dataTickets()
 
     const props = defineProps({
         ticket: {

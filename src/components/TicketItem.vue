@@ -18,10 +18,10 @@
 
 <script setup>
     import { ref } from 'vue';
-    import { ticketListStore } from "@/stores/ticketlist"
+    import { dataTickets } from "@/stores/data_tickets"
     import TicketForm from "@/components/TicketForm.vue"
 
-    const TicketList = ticketListStore()
+    const data_tickets = dataTickets()
     const isShowForm = ref(false)
     const wtf = ref(false)
     const props = defineProps({

@@ -13,7 +13,7 @@
     import BootstrapVue3 from 'bootstrap-vue-3'
 
     onMounted(() => {
-        useLoadTicketList()
+        // useLoadTicketList()
     })
 </script>
 
@@ -23,12 +23,19 @@
     }
     body {
         font-family: 'Noto Sans', 'Noto Sans Thai', sans-serif;
+        text-rendering: optimizeLegibility;
+        -moz-osx-font-smoothing: grayscale;
+        font-smoothing: antialiased;
+        -webkit-font-smoothing: antialiased;
+        text-shadow: rgba(0, 0, 0, .01) 0 0 1px;
+
     }
     a {
         text-decoration: none;
     }
-    .content-group {
-        padding-top: 75px;
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
     }
 </style>
 

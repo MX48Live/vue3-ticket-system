@@ -1,23 +1,21 @@
 
 import { db } from "@/firebase.config.js"
 import { collection, getDocs } from "firebase/firestore";
-import { ticketListStore } from "@/stores/ticketlist"
+import { dataTickets } from "@/stores/data_tickets"
 
 export const useLoadTicketList = async () => {
-    const TicketList = ticketListStore()
+    const data_tickets = dataTickets()
     try {
         const queryTicketList = await getDocs(collection(db, "tickets"));
-        TicketList.ticket_list = []
-        TicketList.ticket_list.length = 0
+        data_tickets.data = []
+        data_tickets.data.length = 0
 
         queryTicketList.forEach((doc) => {
             let ticket = doc.data()
             ticket.id = doc.id
-            TicketList.addData(ticket) 
-        });    
+            data_tickets.addData(ticket) 
+        })
     } catch (error) {
         console.log(error)
     }
-    
-
 }

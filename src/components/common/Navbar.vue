@@ -7,9 +7,9 @@
                     <div class="mobile-toggle" :class="isOpen ? 'active' : ''" @click="toggleMenu">{{ isOpen ? "Close" : "Menu" }}</div>
                 </div>
                 <nav>
-                    <RouterLink to="/" @click="toggleMenu">Event Detail</RouterLink>
+                    <RouterLink to="/" @click="closeMenu">Event Detail</RouterLink>
                     <!-- <RouterLink to="/">My Ticket</RouterLink> -->
-                    <RouterLink to="/manage-tickets" @click="toggleMenu">Organizer</RouterLink>
+                    <RouterLink to="/manage-tickets" @click="closeMenu">Organizer</RouterLink>
                 </nav>
             </div>
         </div>
@@ -23,6 +23,11 @@
     const toggleMenu = (e) => {
         isOpen.value = !isOpen.value
     }
+
+    const closeMenu = (e) => {
+        isOpen.value = false
+    }
+
 </script>
 
 
@@ -46,6 +51,7 @@
         &.open {
             max-height: 300px;
         }
+        z-index: 100;
     }
 
     .navbar-group {

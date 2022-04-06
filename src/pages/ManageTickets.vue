@@ -17,7 +17,7 @@
                 </tr>
             </thead>
             <tbody>
-                <TicketItem v-for="ticket in TicketList.ticket_list" :key="ticket.id" :ticket="ticket" :editable="true" />
+                <TicketItem v-for="ticket in data_tickets.data" :key="ticket.id" :ticket="ticket" :editable="true" />
             </tbody>
         </table>
         <div>
@@ -27,8 +27,8 @@
 </template>
 
 <script setup>
-    import { ticketListStore } from "@/stores/ticketlist"
+    import { dataTickets } from "@/stores/data_tickets"
     import TicketItem from "@/components/TicketItem.vue"
     import AddTicket from "@/components/AddTicket.vue"
-    const TicketList = ticketListStore()
+    const data_tickets = dataTickets()
 </script>
