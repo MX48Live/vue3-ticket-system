@@ -28,7 +28,7 @@
             <br>
         <div class="container">
 
-            {{ define_local_date }}
+            {{ utc_to_local }}
         <div>
         <br>
         </div>
@@ -49,6 +49,7 @@
     // const define_local_date = DateTime.local(2022, 4, 17, 8, 55).toLocal().toFormat('yyyyMMddHHmm');
     const define_now_local_time = DateTime.now().toFormat('yyyyMMddHHmm')
     const define_local_date = DateTime.local(2022, 4, 7, 0, 0).toFormat('yyyyMMddHHmm')
+    const utc_to_local = DateTime.utc(2022, 4, 7, 0, 0).toLocal().toFormat('yyyyMMddHHmm')
 
 
 </script>
