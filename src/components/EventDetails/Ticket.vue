@@ -7,21 +7,25 @@
             <div class="ticket-detail">
                 <div class="name" @click="handleSelectItem"  :class="enable ? '' : 'no-pointer'">{{ ticket.name }}</div>
                 <div class="desc">{{ ticket.description }}</div>
-                <div class="status status-date" v-if="ticket.start_date || ticket.end_date">
-                    <span v-if="ticket.start_date"><strong><span class="material-icons">calendar_today</span>เริ่ม:</strong> {{ ticket.start_date }} <span v-if="ticket.start_time"> - {{ ticket.start_time }}</span></span>
-                    <span v-if="ticket.end_date"><strong><span class="material-icons">calendar_today</span>สิ้นสุด:</strong> {{ ticket.end_date }} <span v-if="ticket.end_time"> - {{ ticket.end_time }}</span></span>
+                <div class="status status-date" v-if="ticket.start_date_time_utc || ticket.end_date_time_utc">
+                    <span v-if="ticket.start_date_time_utc && ticket.setting.start_date_time">
+                        <strong><span class="material-icons">calendar_today</span>เริ่ม:</strong> {{ displayStartDateTime }}
+                    </span>
+                    <span v-if="ticket.end_date_time_utc  && ticket.setting.end_date_time">
+                        <strong><span class="material-icons">calendar_today</span>สิ้นสุด:</strong> {{ displayEndDateTime }}
+                    </span>
                 </div>
-                <div class="status status-number" v-if="ticket.total_remaining || ticket.total_sale || ticket.today_remaining">
-                    <span v-if="ticket.total_remaining">คงเหลือ: {{ ticket.total_remaining }}</span>
-                    <span v-if="ticket.total_sale">จำนวนผู้ซื้อ: {{ ticket.total_sale }}</span>
-                    <span v-if="ticket.today_remaining >= 0">คงเหลือวันนี้: {{ ticket.today_remaining }}</span>
+                <div class="status status-number" v-if="ticket.stats.total_remaining || ticket.stats.total_sale || ticket.stats.today_remaining">
+                    <span v-if="ticket.stats.total_remaining >= 0 && ticket.setting.total_remaining">คงเหลือ: {{ ticket.stats.total_remaining }}</span>
+                    <span v-if="ticket.stats.total_sale >= 0 && ticket.setting.total_sale">จำนวนผู้ซื้อ: {{ ticket.stats.total_sale }}</span>
+                    <span v-if="ticket.stats.today_remaining >= 0  && ticket.setting.today_remaining">คงเหลือวันนี้: {{ ticket.stats.today_remaining }}</span>
                 </div>
             </div>
-            <div class="ticket-price" v-if="!enable">
-                <p> Not Available Ka</p>
+            <div class="ticket-price error" v-if="!enable"> 
+                {{ error }}
             </div>
             <div class="ticket-price" v-if="enable">
-                <div class="price">{{ ticket.price }}</div>
+                <div class="price">{{ priceDecorate }}</div>
                 <div class="select">
                     <div class="x-mark"><span class="material-icons">close</span></div>
                     <button @click="handleActionButton('decrease')" :disabled="disableDecreaseButton"><span class="material-icons">remove</span></button>
@@ -34,13 +38,15 @@
 </template>
 
 <script setup>
-    import { onMounted, reactive, ref } from "vue"
+    import { DateTime } from "luxon";
+    import { computed, onMounted, reactive, ref } from "vue"
     import { userCart } from "@/stores/user_cart"
     const user_cart = userCart()
 
     const enable = ref(false)
     const quantity = ref(props.ticket.minimum_buying)
     const selected = ref(false)
+    const error = ref('Not Available')
     const cart = reactive([])
     const props = defineProps({
         ticket: {
@@ -49,13 +55,17 @@
         }
     })
 
+    const currentUTCTime = parseInt(DateTime.now().toUTC().toFormat('yyyyMMddHHmm'))
+
     // Check InitialAvailable
     onMounted(() => {
         checkInitialAvailability()
     })
     const checkTodayRemaining = () => {
-        if(props.ticket.today_remaining != 0) {
+        if(props.ticket.stats.today_remaining != 0) {
             return true
+        } else {
+
         }
     }
     const checkQuantityRemaining = () => {
@@ -65,22 +75,30 @@
     }
     const checkTodayRemainingEnoughForMinimumBuying = () => {
         if(
-            props.ticket.today_remaining >= props.ticket.minimum_buying ||
-            props.ticket.today_remaining == -1
+            props.ticket.stats.today_remaining >= props.ticket.minimum_buying ||
+            props.ticket.stats.today_remaining == -1
         ) {
             return true
         }
     }
     const checkTotalRemainingEnoughForMinimumBuying = () => {
         if(
-            props.ticket.total_remaining >= props.ticket.minimum_buying ||
-            props.ticket.total_remaining == -1
+            props.ticket.stats.total_remaining >= props.ticket.minimum_buying ||
+            props.ticket.stats.total_remaining == -1
         ) {
             return true
         }
     }
+    const checkStartDate = () => {
+        return currentUTCTime > props.ticket.start_date_time_utc
+    }
+    const checkEndDate = () => {
+        return currentUTCTime < props.ticket.end_date_time_utc
+    }
     const checkInitialAvailability = () => {
         if(
+            checkStartDate() &&
+            checkEndDate() &&
             checkQuantityRemaining() && 
             checkTodayRemaining() && 
             checkTodayRemainingEnoughForMinimumBuying() &&
@@ -92,12 +110,36 @@
         }
     }
 
+    /** Date Time Formatter **/
+    const convertNumberDateToDisplay = (number) => {
+        const arr = []
+        const tempNumber = number.toString()
+        for(let i = 0; i < tempNumber.length; i++) {
+            arr.push(tempNumber[i])
+        }
+        const year = parseInt(arr.slice(0,4).join(''))
+        const month = parseInt(arr.slice(4,6).join(''))
+        const day = arr.slice(6,8).join('')
+        const hour = arr.slice(8,10).join('')
+        const minute =  arr.slice(10,12).join('')
+        const thaiMonth = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
+        const thaiYear = year+543
+        return day+ " " + thaiMonth[month] + " " + thaiYear + " · " + hour + ":" + minute
+    }
+    
+    const displayStartDateTime = computed(() => {
+        return convertNumberDateToDisplay(props.ticket.start_date_time_utc)
+    })
+    const displayEndDateTime = computed(() => {
+        return convertNumberDateToDisplay(props.ticket.end_date_time_utc)
+    })
 
     /** Handle Add-Remove Ticket to Cart **/
     const addTicketToCart = () => {   
         const dataToAdd = {
             ticket_id: props.ticket.id,
-            quantity: quantity.value
+            quantity: quantity.value,
+            price: props.ticket.price
         }
         user_cart.addData(dataToAdd)
     }
@@ -127,7 +169,7 @@
     const handleIncreaseButton = () => {
         const limit_per_time = props.ticket.limit_per_time
         const limit_per_day = props.ticket.limit_per_day === -1 ? limit_per_time : props.ticket.limit_per_day
-        const today_remaining = props.ticket.today_remaining === -1 ? limit_per_time : props.ticket.today_remaining
+        const today_remaining = props.ticket.stats.today_remaining === -1 ? limit_per_time : props.ticket.stats.today_remaining
   
         if(
             quantity.value < limit_per_day && 
@@ -160,6 +202,13 @@
         checkActionButtonAvailability()
         updateTicketToCart()
     }
+
+    const priceDecorate = computed(() => {
+        let price = props.ticket.price.toString()
+        let priceText = price.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$&,")
+        return '฿ '+ priceText
+    })
+    
 </script>
 
 <style lang="scss" scoped>
@@ -202,7 +251,7 @@
                             margin-right: 10px;
                             margin-left: 10px;
                             .material-icons {
-                                padding-top: 2px;
+                                padding-top: 1px;
                                 font-size: 20px;
                                 vertical-align: top;
                             }
@@ -324,5 +373,11 @@
                     border: 1px solid #eeeeee;
                 }
             }
+        }
+        .error {
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: #EA8781;
         }
 </style>

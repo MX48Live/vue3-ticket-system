@@ -10,7 +10,6 @@
             <div class="container">
 
                 <SelectTicket />
-
                 <div class="title">
                     <h1>Block Mountain CNX 2022</h1>
                     <div class="desc">งานมหกรรมบล็อกเชนที่ใหญ่ที่สุดในภาคเหนือ</div>
@@ -77,6 +76,7 @@
 </template>
 
 <script setup>
+
     import TicketItem from "@/components/TicketItem.vue"
     import CoverImge from "@/assets/poster.jpg"
     import { agenda } from "@/data/agenda"
@@ -88,6 +88,9 @@
 
 
 <style lang="scss" scoped>
+    * {
+        font-family: 'Noto Sans', 'Noto Sans Thai', sans-serif;
+    }
     .cover {
         max-height: 575px;
         text-align: center;
