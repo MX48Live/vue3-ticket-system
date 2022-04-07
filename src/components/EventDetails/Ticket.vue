@@ -14,7 +14,7 @@
                 <div class="status status-number" v-if="ticket.total_remaining || ticket.total_sale || ticket.today_remaining">
                     <span v-if="ticket.total_remaining">คงเหลือ: {{ ticket.total_remaining }}</span>
                     <span v-if="ticket.total_sale">จำนวนผู้ซื้อ: {{ ticket.total_sale }}</span>
-                    <span v-if="ticket.today_remaining">คงเหลือวันนี้: {{ ticket.today_remaining }}</span>
+                    <span v-if="ticket.today_remaining >= 0">คงเหลือวันนี้: {{ ticket.today_remaining }}</span>
                 </div>
             </div>
             <div class="ticket-price" v-if="!enable">
@@ -31,7 +31,6 @@
             </div>
         </div>
     </div>
-    {{ ticket.today_remaining }} - {{ ticket.minimum_buying }} = {{ ticket.today_remaining - ticket.minimum_buying - quantity }}
 </template>
 
 <script setup>
@@ -49,7 +48,6 @@
             required: true
         }
     })
-
 
     // Check InitialAvailable
     onMounted(() => {
@@ -126,21 +124,31 @@
         removeTicketFromCart()
         addTicketToCart()
     }
-    const checkActionButtonAvailability = () => {
-        
-        // TODO TODOES TODAY
-        
-        const limit = props.ticket.today_remaining - props.ticket.minimum_buying
-        if(quantity.value <= limit) {
+    const handleIncreaseButton = () => {
+        const limit_per_time = props.ticket.limit_per_time
+        const limit_per_day = props.ticket.limit_per_day === -1 ? limit_per_time : props.ticket.limit_per_day
+        const today_remaining = props.ticket.today_remaining === -1 ? limit_per_time : props.ticket.today_remaining
+  
+        if(
+            quantity.value < limit_per_day && 
+            quantity.value < limit_per_time &&
+            quantity.value < today_remaining
+        ) {
             disableIncreaseButton.value = false
         } else {
             disableIncreaseButton.value = true
         }
+    }
+    const handleDecreaseButton = () => {
         if(quantity.value > props.ticket.minimum_buying) {
             disableDecreaseButton.value = false
         } else {
             disableDecreaseButton.value = true
         }
+    }
+    const checkActionButtonAvailability = () => {
+        handleIncreaseButton()
+        handleDecreaseButton()
     }
     const handleActionButton = (type) => {
         if (type === 'decrease') {
