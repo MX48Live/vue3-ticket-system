@@ -16,6 +16,8 @@ export const dataTickets = defineStore({
                 minimum_buying: 1,
                 limit_per_day: 5,
                 limit_per_time: 7,
+                created_date: 202204070000,
+                updated_date: 202204100000,
                 stats: {
                     total_sale: 2,
                     today_sale: 2,
@@ -40,6 +42,8 @@ export const dataTickets = defineStore({
                 minimum_buying: 29,
                 limit_per_day: -1,
                 limit_per_time: -1,
+                created_date: 202204070000,
+                updated_date: 202204100000,
                 stats: {
                     total_sale: 0,
                     today_sale: 0,
@@ -64,6 +68,8 @@ export const dataTickets = defineStore({
                 minimum_buying: 2,
                 limit_per_day: 10,
                 limit_per_time: 10,
+                created_date: 202204070000,
+                updated_date: 202204100000,
                 stats: {
                     total_sale: 2,
                     today_sale: 6,

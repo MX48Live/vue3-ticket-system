@@ -1,5 +1,13 @@
 <template>
     <div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="container">
+             <ManageTickets />
+        </div>
         <!-- <h1>Manage Tickets</h1>
         <table>
             <thead>
@@ -20,7 +28,7 @@
                 <TicketItem v-for="ticket in data_tickets.data" :key="ticket.id" :ticket="ticket" :editable="true" />
             </tbody>
         </table> -->
-        <div>
+        <!-- <div>
             <AddTicket />
         </div>
             <br>
@@ -32,7 +40,7 @@
         <div>
         <br>
         </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -42,6 +50,7 @@
     import { dataTickets } from "@/stores/data_tickets"
     import TicketItem from "@/components/TicketItem.vue"
     import AddTicket from "@/components/AddTicket.vue"
+    import ManageTickets from "@/components/ManageEvent/ManageTickets.vue"
     const data_tickets = dataTickets()
 
     const now_date_utc = parseInt(DateTime.now().toUTC().toFormat('yyyyMMddHHmm'))

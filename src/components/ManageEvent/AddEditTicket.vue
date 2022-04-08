@@ -144,8 +144,8 @@
 
         <hr>
         <div class="stats" v-if="mode === 'edit'">
-            <div>Created: {{ formData.created }}</div>
-            <div>Update: {{ formData.updated }}</div>
+            <div><strong>Created:</strong> {{ displayCreated }}</div>
+            <div><strong>Update:</strong> {{ displayUpdated }}</div>
         </div>
         <a-button type="primary" class="submit">Save</a-button>
     </a-drawer>
@@ -153,6 +153,7 @@
 
 <script setup>
     import { ref, reactive, computed, watch } from 'vue'
+    import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
     const emit = defineEmits(['update:modelValue'])
     const props = defineProps({
         ticket: {
@@ -178,6 +179,7 @@
 
 
     const formData = reactive({
+        id: props.ticket,
         name: props.ticket.name,
         description: props.ticket.description,
         start_date_time_utc: props.ticket.start_date_time_utc,
@@ -188,16 +190,18 @@
         minimum_buying: props.ticket.minimum_buying,
         limit_per_day: props.ticket.limit_per_day,
         limit_per_time: props.ticket.limit_per_time,
-        created: props.ticket.created_date_utc,
-        updated: props.ticket.updated_date_utc,
+        created_date: props.ticket.created_date,
+        updated_date: props.ticket.updated_date,
+        stats: {
+            total_sale: props.ticket.stats.total_sale,
+            today_sale: props.ticket.stats.today_sale,
+        },
         setting: {
             start_date_time: props.ticket.setting.start_date_time,
             end_date_time: props.ticket.setting.end_date_time,
-            quantity: props.ticket.setting.quantity,
-            total_sale: props.ticket.setting.total_sale,
             total_remaining: props.ticket.setting.total_remaining,
+            total_sale: props.ticket.setting.total_sale,
             today_remaining: props.ticket.setting.today_remaining,
-            limit_per_day: props.ticket.setting.limit_per_day,
             show_if_inactive: props.ticket.setting.show_if_inactive,
         }
     })
@@ -274,6 +278,13 @@
         return formData[data]
     }
 
+    const displayCreated = computed(() => {
+        return useConvertUTCtoLocalDateToDisplay(formData.created_date)
+    })
+    const displayUpdated = computed(() => {
+        return useConvertUTCtoLocalDateToDisplay(formData.updated_date)
+    })
+
 
 
 
@@ -345,8 +356,6 @@
         margin-bottom: 5px;
         font-size: 10px;
         color: #888;
-        display: flex;
-        justify-content: space-between;
         div {
             margin-bottom: 2px;
         }
