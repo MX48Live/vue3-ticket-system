@@ -7,7 +7,7 @@
             <div class="ticket-detail">
                 <div class="name" @click="handleSelectItem"  :class="enable ? '' : 'no-pointer'">{{ ticket.name }}</div>
                 <div class="desc">{{ ticket.description }}</div>
-                <div class="status status-date" v-if="ticket.start_date_time_utc || ticket.end_date_time_utc">
+                <div class="status status-date" v-if="ticket.setting.start_date_time || ticket.setting.end_date_time">
                     <span v-if="ticket.start_date_time_utc && ticket.setting.start_date_time">
                         <strong><span class="material-icons">calendar_today</span>เริ่ม:</strong> {{ displayStartDateTime }}
                     </span>
@@ -15,10 +15,10 @@
                         <strong><span class="material-icons">calendar_today</span>สิ้นสุด:</strong> {{ displayEndDateTime }}
                     </span>
                 </div>
-                <div class="status status-number" v-if="ticket.stats.total_remaining || ticket.stats.total_sale || ticket.stats.today_remaining">
-                    <span v-if="ticket.stats.total_remaining >= 0 && ticket.setting.total_remaining">คงเหลือ: {{ ticket.stats.total_remaining }}</span>
-                    <span v-if="ticket.stats.total_sale >= 0 && ticket.setting.total_sale">จำนวนผู้ซื้อ: {{ ticket.stats.total_sale }}</span>
-                    <span v-if="ticket.stats.today_remaining >= 0  && ticket.setting.today_remaining">คงเหลือวันนี้: {{ ticket.stats.today_remaining }}</span>
+                <div class="status status-number" v-if="ticket.setting.total_remaining || ticket.setting.total_sale || ticket.setting.today_remaining">
+                    <span v-if="ticket.setting.total_remaining">คงเหลือ: {{ displayTotalRemaining }}</span>
+                    <span v-if="ticket.setting.total_sale && ticket.stats.total_sale > 0">จำนวนผู้ซื้อ: {{ ticket.stats.total_sale }}</span>
+                    <span v-if="ticket.setting.today_remaining">คงเหลือวันนี้: {{ displayTodayRemaining }}</span>
                 </div>
             </div>
             <div class="ticket-price error" v-if="!enable"> 
@@ -41,13 +41,14 @@
     import { DateTime } from "luxon";
     import { computed, onMounted, reactive, ref } from "vue"
     import { userCart } from "@/stores/user_cart"
-    const user_cart = userCart()
+    import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
 
+    const user_cart = userCart()
     const enable = ref(false)
     const quantity = ref(props.ticket.minimum_buying)
     const selected = ref(false)
     const error = ref('Not Available')
-    const cart = reactive([])
+
     const props = defineProps({
         ticket: {
             type: Object,
@@ -56,44 +57,53 @@
     })
 
     const currentUTCTime = parseInt(DateTime.now().toUTC().toFormat('yyyyMMddHHmm'))
-
+    const totalRemaining = props.ticket.quantity - props.ticket.stats.total_sale
+    const todayRemaining = props.ticket.limit_per_day - props.ticket.stats.today_sale
     // Check InitialAvailable
     onMounted(() => {
         checkInitialAvailability()
     })
     const checkTodayRemaining = () => {
-        if(props.ticket.stats.today_remaining != 0) {
+        if(todayRemaining > 0 || todayRemaining < 0) {
             return true
         } else {
 
         }
+        error.value = "จำนวนคงเหลือวันนี้หมดแล้ว กรุณาลองใหม่วันพรุ่งนี้"
     }
     const checkQuantityRemaining = () => {
-        if(props.ticket.quantity != 0) {
+        if(totalRemaining != 0) {
             return true
         }
+        error.value = "จำนวนคงเหลือหมดแล้ว"
     }
     const checkTodayRemainingEnoughForMinimumBuying = () => {
         if(
-            props.ticket.stats.today_remaining >= props.ticket.minimum_buying ||
-            props.ticket.stats.today_remaining == -1
+            todayRemaining >= props.ticket.minimum_buying || todayRemaining < 0
         ) {
             return true
         }
+        error.value = "จำนวนคงเหลือ(วันนี้) ไม่เพียงพอต่อกำหนดจำนวนการซื้อขั้นต่ำ"
     }
     const checkTotalRemainingEnoughForMinimumBuying = () => {
         if(
-            props.ticket.stats.total_remaining >= props.ticket.minimum_buying ||
-            props.ticket.stats.total_remaining == -1
+            totalRemaining >= props.ticket.minimum_buying || totalRemaining < 0
         ) {
             return true
         }
+        error.value = "จำนวนคงเหลือ ไม่เพียงพอต่อกำหนดจำนวนการซื้อขั้นต่ำ"
     }
     const checkStartDate = () => {
-        return currentUTCTime > props.ticket.start_date_time_utc
+        if(currentUTCTime >= props.ticket.start_date_time_utc) {
+            return true
+        }
+        error.value = "ยังไม่ถึงกำหนดการขาย"
     }
     const checkEndDate = () => {
-        return currentUTCTime < props.ticket.end_date_time_utc
+        if(currentUTCTime <= props.ticket.end_date_time_utc) {
+            return true
+        }
+        error.value = "สิ้นสุดกำหนดการขายแล้ว"
     }
     const checkInitialAvailability = () => {
         if(
@@ -110,42 +120,29 @@
         }
     }
 
-    /** Date Time Formatter **/
-    const convertNumberDateToDisplay = (number) => {
-        const UTCArr = []
-        const tempUTCNumber = number.toString()
-        for(let i = 0; i < tempUTCNumber.length; i++) {
-            UTCArr.push(tempUTCNumber[i])
-        }
-        const UTCYear = parseInt(UTCArr.slice(0,4).join(''))
-        const UTCMonth = parseInt(UTCArr.slice(4,6).join(''))
-        const UTCDay = parseInt(UTCArr.slice(6,8).join(''))
-        const UTCHour = parseInt(UTCArr.slice(8,10).join(''))
-        const UTCMinute =  parseInt(UTCArr.slice(10,12).join(''))
-
-        const localArr = []
-        const UTCToLocal = DateTime.utc(UTCYear, UTCMonth, UTCDay, UTCHour, UTCMinute).toLocal().toFormat('yyyyMMddHHmm').toString()
-        for(let i = 0; i < UTCToLocal.length; i++) {
-            localArr.push(UTCToLocal[i])
-        }
-        const localYear = parseInt(localArr.slice(0,4).join(''))
-        const localMonth = parseInt(localArr.slice(4,6).join(''))
-        const localDay = localArr.slice(6,8).join('')
-        const localHour = localArr.slice(8,10).join('')
-        const localMinute =  localArr.slice(10,12).join('')
-
-        const thaiMonth = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
-        const thaiYear = localYear+543
-
-        return localDay+ " " + thaiMonth[localMonth-1] + " " + thaiYear + " · " + localHour + ":" + localMinute
-    }
-    
+    /** Date Time Formatter **/    
     const displayStartDateTime = computed(() => {
-        return convertNumberDateToDisplay(props.ticket.start_date_time_utc)
+        return useConvertUTCtoLocalDateToDisplay(props.ticket.start_date_time_utc)
     })
     const displayEndDateTime = computed(() => {
-        return convertNumberDateToDisplay(props.ticket.end_date_time_utc)
+        return useConvertUTCtoLocalDateToDisplay(props.ticket.end_date_time_utc)
     })
+
+
+    /** Format Remaining **/
+    const displayTotalRemaining = computed(() => {
+        return props.ticket.quantity - props.ticket.stats.total_sale
+    })
+
+    /** Format Remaining **/
+    const displayTodayRemaining = computed(() => {
+        if(totalRemaining < todayRemaining) {
+            return totalRemaining
+        }
+        return todayRemaining
+    })
+
+
 
     /** Handle Add-Remove Ticket to Cart **/
     const addTicketToCart = () => {   
@@ -181,13 +178,13 @@
     }
     const handleIncreaseButton = () => {
         const limit_per_time = props.ticket.limit_per_time
-        const limit_per_day = props.ticket.limit_per_day === -1 ? limit_per_time : props.ticket.limit_per_day
-        const today_remaining = props.ticket.stats.today_remaining === -1 ? limit_per_time : props.ticket.stats.today_remaining
-  
+        const limit_per_day = props.ticket.limit_per_day
+
         if(
-            quantity.value < limit_per_day && 
-            quantity.value < limit_per_time &&
-            quantity.value < today_remaining
+            (quantity.value < totalRemaining || totalRemaining < 0) &&
+            (quantity.value < todayRemaining || todayRemaining < 0) &&
+            (quantity.value < limit_per_day || limit_per_day < 0) &&
+            (quantity.value < limit_per_time || limit_per_time < 0) 
         ) {
             disableIncreaseButton.value = false
         } else {
@@ -388,9 +385,9 @@
             }
         }
         .error {
-            text-align: center;
-            font-size: 15px;
-            font-weight: bold;
+            max-width: 280px;
+            text-align: left;
+            font-size: 14px;
             color: #EA8781;
         }
 </style>
