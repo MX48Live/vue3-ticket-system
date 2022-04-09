@@ -12,13 +12,14 @@
         <span><strong><span class="material-icons">calendar_today</span> สิ้นสุด: </strong>{{ displayStartDateTime }}</span>
       </div>
       <div class="status-number">
-        <span>คงเหลือ: {{ ticket.stats.total_remaining }}</span>
-        <span>จำนวนผู้ซื้อ: {{ ticket.stats.total_sale }}</span>
-        <span>คงเหลือวันนี้: {{ ticket.stats.today_remaining }}</span>
+          <span>{{ ticket.id}}</span>
+          <span>คงเหลือ: {{ displayTotalRemaining }}</span>
+          <span>จำนวนผู้ซื้อ: {{ ticket.stats_total_sale }}</span>
+          <span v-if="ticket.setting_today_remaining && displayTodayRemaining !== '-'">คงเหลือวันนี้: {{ displayTodayRemaining }}</span>
       </div>
     </div>
 
-    <div>
+    <div> 
       <a-button @click="showDrawer">Edit</a-button>
     </div>
     <AddEditTicket :ticket="ticket" :isShowDrawer="isShowDrawer" v-model="isShowDrawer" mode="edit" />
@@ -29,13 +30,13 @@
     import { computed, ref } from "vue"
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
     import AddEditTicket from "@/components/ManageEvent/AddEditTicket.vue"
-
     const props = defineProps({
         ticket: {
             type: Object,
             require: true
         }
     })
+
 
     /** Drawer Handler **/
     const isShowDrawer = ref(false)
@@ -49,6 +50,21 @@
     })
     const displayEndDateTime = computed(() => {
         return useConvertUTCtoLocalDateToDisplay(props.ticket.end_date_time_utc)
+    })
+
+   /** Format Remaining **/
+    const displayTotalRemaining = computed(() => {
+        return props.ticket.quantity - props.ticket.stats_total_sale
+    })
+     /** Format Remaining **/
+    const displayTodayRemaining = computed(() => {
+        let totalRemaining = ref(props.ticket.quantity - props.ticket.stats_total_sale)
+        let todayRemaining = ref(props.ticket.limit_per_day - props.ticket.stats_today_sale)
+        if(todayRemaining.value < 0) {
+            return "-"
+        } else {
+          return todayRemaining
+        }
     })
 
 </script>
@@ -96,8 +112,10 @@
     }
   }
   .status-number {
+    display: inline-block;
       margin-top: 5px;
       span {
+          display: inline-block;
           padding: 0 6px;
           border-radius: 10px;
           color: #555;
@@ -105,7 +123,7 @@
           border: 1px solid #eeeeee;
           font-size: 12px;
           margin-right: 10px;
+          margin-bottom: 5px;
       }
-      margin-bottom: 5px;
   }
 </style>

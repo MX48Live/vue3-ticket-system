@@ -1,5 +1,5 @@
 <template>
-    <div class="ticket-item" :class="selected ? 'selected' : 'no-select'">
+    <div class="ticket-item" :class="selected ? 'selected' : 'no-select'" v-if="ticket.setting_show_if_inactive">
         <div class="ticket-select" @click="handleSelectItem" :class="enable ? '' : 'no-pointer'">
             <span class="material-icons" v-if="enable">check_box_outline</span>
         </div>
@@ -7,18 +7,18 @@
             <div class="ticket-detail">
                 <div class="name" @click="handleSelectItem"  :class="enable ? '' : 'no-pointer'">{{ ticket.name }}</div>
                 <div class="desc">{{ ticket.description }}</div>
-                <div class="status status-date" v-if="ticket.setting.start_date_time || ticket.setting.end_date_time">
-                    <span v-if="ticket.start_date_time_utc && ticket.setting.start_date_time">
+                <div class="status status-date" v-if="ticket.setting_start_date_time || ticket.setting_end_date_time">
+                    <span v-if="ticket.start_date_time_utc && ticket.setting_start_date_time">
                         <strong><span class="material-icons">calendar_today</span>เริ่ม:</strong> {{ displayStartDateTime }}
                     </span>
-                    <span v-if="ticket.end_date_time_utc  && ticket.setting.end_date_time">
+                    <span v-if="ticket.end_date_time_utc  && ticket.setting_end_date_time">
                         <strong><span class="material-icons">calendar_today</span>สิ้นสุด:</strong> {{ displayEndDateTime }}
                     </span>
                 </div>
-                <div class="status status-number" v-if="ticket.setting.total_remaining || ticket.setting.total_sale || ticket.setting.today_remaining">
-                    <span v-if="ticket.setting.total_remaining">คงเหลือ: {{ displayTotalRemaining }}</span>
-                    <span v-if="ticket.setting.total_sale && ticket.stats.total_sale > 0">จำนวนผู้ซื้อ: {{ ticket.stats.total_sale }}</span>
-                    <span v-if="ticket.setting.today_remaining">คงเหลือวันนี้: {{ displayTodayRemaining }}</span>
+                <div class="status status-number" v-if="ticket.setting_total_remaining || ticket.setting_total_sale || ticket.setting_today_remaining">
+                    <span v-if="ticket.setting_total_remaining">คงเหลือ: {{ displayTotalRemaining }}</span>
+                    <span v-if="ticket.setting_total_sale && ticket.stats_total_sale > 0">จำนวนผู้ซื้อ: {{ ticket.stats_total_sale }}</span>
+                    <span v-if="ticket.setting_today_remaining && displayTodayRemaining > -1">คงเหลือวันนี้: {{ displayTodayRemaining }}</span>
                 </div>
             </div>
             <div class="ticket-price error" v-if="!enable"> 
@@ -57,8 +57,8 @@
     })
 
     const currentUTCTime = parseInt(DateTime.now().toUTC().toFormat('yyyyMMddHHmm'))
-    const totalRemaining = props.ticket.quantity - props.ticket.stats.total_sale
-    const todayRemaining = props.ticket.limit_per_day - props.ticket.stats.today_sale
+    const totalRemaining = props.ticket.quantity - props.ticket.stats_total_sale
+    const todayRemaining = props.ticket.limit_per_day - props.ticket.stats_today_sale
     // Check InitialAvailable
     onMounted(() => {
         checkInitialAvailability()
@@ -131,7 +131,7 @@
 
     /** Format Remaining **/
     const displayTotalRemaining = computed(() => {
-        return props.ticket.quantity - props.ticket.stats.total_sale
+        return props.ticket.quantity - props.ticket.stats_total_sale
     })
 
     /** Format Remaining **/
@@ -156,7 +156,8 @@
     const removeTicketFromCart = () => {
         user_cart.removeData(props.ticket.id)
     }
-    const handleSelectItem = () => {
+    const handleSelectItem = (e) => {
+        e.preventDefault()
         if(props.ticket.available && enable.value) {
             if(selected.value) {
                 removeTicketFromCart()

@@ -1,4 +1,5 @@
 <template>
+    <notifications position="top center" class="notification"/>
     <Navbar />
     <RouterView class="content-group"/>
 </template>
@@ -13,7 +14,7 @@
     import BootstrapVue3 from 'bootstrap-vue-3'
 
     onMounted(() => {
-        // useLoadTicketList()
+        useLoadTicketList()
     })
 </script>
 
@@ -35,6 +36,9 @@
     .container {
         padding-left: 15px;
         padding-right: 15px;
+    }
+    .notification {
+        margin-top: 20px;
     }
 </style>
 

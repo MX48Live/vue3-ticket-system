@@ -95,49 +95,37 @@
         </div>
         <div class="select-group">
             <label>
-                <a-switch v-model:checked="formData.setting.start_date_time" size="small" /> 
+                <a-switch v-model:checked="formData.setting_start_date_time" size="small" /> 
                 <span>Show Start Date - Time</span>
             </label>
         </div>
         <div class="select-group">
             <label>
-                <a-switch v-model:checked="formData.setting.end_date_time" size="small" /> 
+                <a-switch v-model:checked="formData.setting_end_date_time" size="small" /> 
                 <span>Show End Date - Time</span>
             </label>
         </div>
         <div class="select-group">
             <label>
-                <a-switch v-model:checked="formData.setting.quantity" size="small" /> 
-                <span>Show Quantity</span>
-            </label>
-        </div>
-        <div class="select-group">
-            <label>
-                <a-switch v-model:checked="formData.setting.total_sale" size="small" /> 
+                <a-switch v-model:checked="formData.setting_total_sale" size="small" /> 
                 <span>Show Total Sale</span>
             </label>
         </div>
         <div class="select-group">
             <label>
-                <a-switch v-model:checked="formData.setting.total_remaining" size="small" /> 
+                <a-switch v-model:checked="formData.setting_total_remaining" size="small" /> 
                 <span>Show Total Remaning</span>
             </label>
         </div>
-        <div class="select-group">
+        <div class="select-group" v-if="isLimitPerDay">
             <label>
-                <a-switch v-model:checked="formData.setting.today_remaining" size="small" /> 
+                <a-switch v-model:checked="formData.setting_today_remaining" size="small" /> 
                 <span>Show Today Remaning</span>
             </label>
         </div>
         <div class="select-group">
             <label>
-                <a-switch v-model:checked="formData.setting.limit_per_day" size="small" /> 
-                <span>Show Limit Total Sale Per Day</span>
-            </label>
-        </div>
-        <div class="select-group">
-            <label>
-                <a-switch v-model:checked="formData.setting.show_if_inactive" size="small" /> 
+                <a-switch v-model:checked="formData.setting_show_if_inactive" size="small" /> 
                 <span>Show If Inactive</span>
             </label>
         </div>
@@ -147,13 +135,18 @@
             <div><strong>Created:</strong> {{ displayCreated }}</div>
             <div><strong>Update:</strong> {{ displayUpdated }}</div>
         </div>
-        <a-button type="primary" class="submit">Save</a-button>
+        <a-button type="primary" class="submit" @click="handleUpdateTicket">Save</a-button>
     </a-drawer>
 </template>
 
 <script setup>
     import { ref, reactive, computed, watch } from 'vue'
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
+    import { dataTickets } from "@/stores/data_tickets"
+    import { useUpdateTicket } from "@/use/useUpdateTicket"
+
+    const data_tickets = dataTickets()
+
     const emit = defineEmits(['update:modelValue'])
     const props = defineProps({
         ticket: {
@@ -179,7 +172,7 @@
 
 
     const formData = reactive({
-        id: props.ticket,
+        id: props.ticket.id,
         name: props.ticket.name,
         description: props.ticket.description,
         start_date_time_utc: props.ticket.start_date_time_utc,
@@ -192,18 +185,14 @@
         limit_per_time: props.ticket.limit_per_time,
         created_date: props.ticket.created_date,
         updated_date: props.ticket.updated_date,
-        stats: {
-            total_sale: props.ticket.stats.total_sale,
-            today_sale: props.ticket.stats.today_sale,
-        },
-        setting: {
-            start_date_time: props.ticket.setting.start_date_time,
-            end_date_time: props.ticket.setting.end_date_time,
-            total_remaining: props.ticket.setting.total_remaining,
-            total_sale: props.ticket.setting.total_sale,
-            today_remaining: props.ticket.setting.today_remaining,
-            show_if_inactive: props.ticket.setting.show_if_inactive,
-        }
+        stats_total_sale: props.ticket.stats_total_sale,
+        stats_today_sale: props.ticket.stats_today_sale,
+        setting_start_date_time: props.ticket.setting_start_date_time,
+        setting_end_date_time: props.ticket.setting_end_date_time,
+        setting_total_remaining: props.ticket.setting_total_remaining,
+        setting_total_sale: props.ticket.setting_total_sale,
+        setting_today_remaining: props.ticket.setting_today_remaining,
+        setting_show_if_inactive: props.ticket.setting_show_if_inactive,
     })
 
     /** handle handleMinimumBuying Drawer **/
@@ -284,6 +273,11 @@
     const displayUpdated = computed(() => {
         return useConvertUTCtoLocalDateToDisplay(formData.updated_date)
     })
+
+    const handleUpdateTicket = async () => {
+        await useUpdateTicket(props.ticket.id, formData)
+        await close()
+    }
 
 
 

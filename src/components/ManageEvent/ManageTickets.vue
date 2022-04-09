@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-    import { dataTickets } from "@/stores/data_tickets"
     import Ticket from '@/components/ManageEvent/Ticket.vue';
+    import { dataTickets } from "@/stores/data_tickets"
     const data_tickets = dataTickets()
 </script>

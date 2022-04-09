@@ -18,17 +18,14 @@ export const dataTickets = defineStore({
                 limit_per_time: 7,
                 created_date: 202204070000,
                 updated_date: 202204100000,
-                stats: {
-                    total_sale: 2,
-                    today_sale: 2,
-                },
-                setting: {
-                    start_date_time: true,
-                    end_date_time: true,
-                    total_remaining: true,
-                    total_sale: true,
-                    today_remaining: true,
-                }
+                stats_total_sale: 2,
+                stats_today_sale: 2,
+                setting_start_date_time: true,
+                setting_end_date_time: true,
+                setting_total_remaining: true,
+                setting_total_sale: true,
+                setting_today_remaining: true,
+                setting_show_if_inactive: true,
             },
             {
                 id: 2,
@@ -39,22 +36,19 @@ export const dataTickets = defineStore({
                 available: true,
                 price: 4000,
                 quantity: 30,
-                minimum_buying: 29,
+                minimum_buying: 1,
                 limit_per_day: -1,
                 limit_per_time: -1,
                 created_date: 202204070000,
                 updated_date: 202204100000,
-                stats: {
-                    total_sale: 0,
-                    today_sale: 0,
-                },
-                setting: {
-                    start_date_time: true,
-                    end_date_time: true,
-                    total_remaining: true,
-                    total_sale: true,
-                    today_remaining: true,
-                }
+                stats_total_sale: 2,
+                stats_today_sale: 2,
+                setting_start_date_time: true,
+                setting_end_date_time: true,
+                setting_total_remaining: true,
+                setting_total_sale: true,
+                setting_today_remaining: true,
+                setting_show_if_inactive: true,
             },
             {
                 id: 3,
@@ -70,17 +64,14 @@ export const dataTickets = defineStore({
                 limit_per_time: 10,
                 created_date: 202204070000,
                 updated_date: 202204100000,
-                stats: {
-                    total_sale: 2,
-                    today_sale: 6,
-                },
-                setting: {
-                    start_date_time: true,
-                    end_date_time: true,
-                    total_remaining: true,
-                    total_sale: true,
-                    today_remaining: true,
-                }
+                stats_total_sale: 2,
+                stats_today_sale: 2,
+                setting_start_date_time: true,
+                setting_end_date_time: true,
+                setting_total_remaining: true,
+                setting_total_sale: true,
+                setting_today_remaining: true,
+                setting_show_if_inactive: true,
             },
         ],
         loaded: false
@@ -92,7 +83,8 @@ export const dataTickets = defineStore({
         setLoaded(condition) {
             this.loaded = condition
         },
-        updateTicket(index, updateData) {
+        updateTicket(ticketID, updateData) {
+            let index = this.data.findIndex(item => item.id === ticketID)
             this.data[index] = {...updateData}
         }
     }

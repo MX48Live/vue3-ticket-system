@@ -10,6 +10,7 @@
             <div class="container">
 
                 <SelectTicket />
+
                 <div class="title">
                     <h1>Block Mountain CNX 2022</h1>
                     <div class="desc">งานมหกรรมบล็อกเชนที่ใหญ่ที่สุดในภาคเหนือ</div>
@@ -59,9 +60,7 @@
     import CoverImge from "@/assets/poster.jpg"
     import { agenda } from "@/data/agenda"
     import SelectTicket from "@/components/EventDetails/SelectTicket.vue"
-    
-    import { dataTickets } from "@/stores/data_tickets"
-    const data_tickets = dataTickets()
+
 </script>
 
 
