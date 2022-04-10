@@ -9,7 +9,7 @@
       <div class="description">{{ ticket.description }}</div>
       <div class="date-time">
         <span><strong><span class="material-icons">calendar_today</span> เริ่ม: </strong>{{ displayStartDateTime }}</span>
-        <span><strong><span class="material-icons">calendar_today</span> สิ้นสุด: </strong>{{ displayStartDateTime }}</span>
+        <span><strong><span class="material-icons">calendar_today</span> สิ้นสุด: </strong>{{ displayEndDateTime }}</span>
       </div>
       <div class="status-number">
           <span>{{ ticket.id}}</span>

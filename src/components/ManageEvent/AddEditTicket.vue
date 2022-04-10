@@ -17,15 +17,15 @@
         <div class="form-group date-time">
             <label>Start Date</label>
             <div>
-                <a-input v-model:value="formData.start_date_time_utc" type="date" auto-size />
-                <a-input v-model:value="formData.start_date_time_utc" type="time" auto-size />
+                <a-input v-model:value="displayLocalStartDate" type="date" id="start_date" @change="handleStartDateChange" auto-size />
+                <a-input v-model:value="displayLocalStartTime" type="time" id="start_time" @change="handleStartTimeChange" auto-size />
             </div>
         </div>
         <div class="form-group date-time">
             <label>End Date</label>
             <div>
-                <a-input v-model:value="formData.end_date_time_utc" type="date" auto-size />
-                <a-input v-model:value="formData.end_date_time_utc" type="time" auto-size />
+                <a-input v-model:value="displayLocalEndDate" type="date" id="end_date" @change="handleEndDateChange" auto-size />
+                <a-input v-model:value="displayLocalEndTime" type="time" id="end_time" @change="handleEndTimeChange" auto-size />
             </div>
         </div>
         
@@ -135,18 +135,18 @@
             <div><strong>Created:</strong> {{ displayCreated }}</div>
             <div><strong>Update:</strong> {{ displayUpdated }}</div>
         </div>
-        <a-button type="primary" class="submit" @click="handleUpdateTicket">Save</a-button>
+        <a-button type="primary" class="submit" @click="handleSubmitTicket">Save</a-button>
     </a-drawer>
 </template>
 
 <script setup>
+    import { DateTime } from "luxon";
     import { ref, reactive, computed, watch } from 'vue'
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
     import { dataTickets } from "@/stores/data_tickets"
     import { useUpdateTicket } from "@/use/useUpdateTicket"
 
     const data_tickets = dataTickets()
-
     const emit = defineEmits(['update:modelValue'])
     const props = defineProps({
         ticket: {
@@ -169,7 +169,6 @@
     const close = (e) => {
         emit('update:modelValue', false)
     }
-
 
     const formData = reactive({
         id: props.ticket.id,
@@ -194,6 +193,81 @@
         setting_today_remaining: props.ticket.setting_today_remaining,
         setting_show_if_inactive: props.ticket.setting_show_if_inactive,
     })
+    const dateTimeSplitter = (source) => {
+        const year = parseInt(source.toString().slice(0,4))
+        const month = parseInt(source.toString().slice(4,6))
+        const date = parseInt(source.toString().slice(6,8))
+        const hour = parseInt(source.toString().slice(8,10))
+        const min = parseInt(source.toString().slice(10,12))
+        return [year, month, date, hour, min]
+    }
+    const convertUTCtoLocal = (sourceUTC) => { 
+        const [year, month, date, hour, min] = dateTimeSplitter(sourceUTC)
+        const localTime = DateTime.utc(year, month, date, hour, min).toLocal().toFormat('yyyyMMddHHmm').toString()
+        return parseInt(localTime)
+    }
+    const convertLocaltoUTC = (sourceLocal) => {
+        const [year, month, date, hour, min] = dateTimeSplitter(sourceLocal)
+        const UTCTime = DateTime.local(year, month, date, hour, min).toUTC().toFormat('yyyyMMddHHmm').toString()
+        return parseInt(UTCTime)
+    }
+    const LocalStartDateTime = ref(convertUTCtoLocal(formData.start_date_time_utc))
+    const LocalEndDateTime = ref(convertUTCtoLocal(formData.end_date_time_utc))
+
+    /** handle Display date on input field **/
+    const convertDateForDisplay = (source) => {
+        let fullDate = source.toString().slice(0,8)
+        let year = fullDate.slice(0,4)
+        let month = fullDate.slice(4,6)
+        let date = fullDate.slice(6,8)
+        let concat = (year+'-'+month+'-'+date).toString()
+        return concat
+    }
+    const convertTimeForDisplay = (source) => {
+        let fullTime = source.toString().slice(8,12)
+        let hour = fullTime.slice(0,2)
+        let minute = fullTime.slice(2,4)
+        let concat = (hour+':'+minute).toString()
+        return concat
+    }
+    const displayLocalStartDate = ref(convertDateForDisplay(LocalStartDateTime.value))
+    const displayLocalStartTime = ref(convertTimeForDisplay(LocalStartDateTime.value))
+    const displayLocalEndDate = ref(convertDateForDisplay(LocalEndDateTime.value))
+    const displayLocalEndTime = ref(convertTimeForDisplay(LocalEndDateTime.value))
+
+    /** Date Time handler **/
+    const concatDateChange = (e, defaultTime) => {
+        const concat = e.target.value + defaultTime 
+        const source = concat.replace(/[-: ]/g, "")
+        return source
+    }
+    const concatTimeChange = (defaultDate, e) => {
+        const concat = defaultDate + e.target.value
+        const source = concat.replace(/[-: ]/g, "")
+        return source
+    }
+    
+    const handleStartDateChange = (e) => {
+        const source = concatDateChange(e, displayLocalStartTime.value)
+        console.log(source)
+        formData.start_date_time_utc = convertLocaltoUTC(source)
+    }
+    const handleStartTimeChange = (e) => {
+        const source = concatTimeChange(displayLocalStartDate.value, e)
+        console.log(source)
+        formData.start_date_time_utc = convertLocaltoUTC(source)
+    }
+    const handleEndDateChange = (e) => {
+        const source = concatDateChange(e, displayLocalEndTime.value)
+        console.log(source)
+        formData.end_date_time_utc = convertLocaltoUTC(source)
+    }
+    const handleEndTimeChange = (e) => {
+        const source = concatTimeChange(displayLocalEndDate.value, e)
+        console.log(source)
+        formData.end_date_time_utc = convertLocaltoUTC(source)
+    }
+    
 
     /** handle handleMinimumBuying Drawer **/
     const handleMinimumBuying = (type) => {
@@ -256,7 +330,6 @@
             }
         }
     }
-
     const calculatedNumber = (data) => {
         if(formData[data] > formData.quantity) {
             formData[data] = formData.quantity
@@ -274,13 +347,10 @@
         return useConvertUTCtoLocalDateToDisplay(formData.updated_date)
     })
 
-    const handleUpdateTicket = async () => {
+    const handleSubmitTicket = async () => {
         await useUpdateTicket(props.ticket.id, formData)
         await close()
     }
-
-
-
 
 </script>
 
