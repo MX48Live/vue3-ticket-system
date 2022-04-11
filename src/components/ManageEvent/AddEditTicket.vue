@@ -2,17 +2,18 @@
     <a-drawer
       v-model:visible="isShowDrawer"
       class="custom-class"
-      :title="ticket.name"
+      :title="[ticket.name ? ticket.name : 'Add New Ticket' ]"
       placement="right"
       @close="close"
     >
         <div class="form-group">
             <label>Ticket Name</label>
-            <a-input v-model:value="formData.name" placeholder="Basic usage" />
+            <a-input v-model:value="formData.name" placeholder="Ticket Name" />
+            <span class="error"></span>
         </div>
         <div class="form-group">
-            <label>Ticket Name</label>
-            <a-textarea v-model:value="formData.description" placeholder="Basic usage" auto-size />
+            <label>Description</label>
+            <a-textarea v-model:value="formData.description" placeholder="Description" auto-size />
         </div>
         <div class="form-group date-time">
             <label>Start Date</label>
@@ -31,11 +32,11 @@
         
         <div class="form-group">
             <label>Price</label>
-            <a-input v-model:value="formData.price" placeholder="Basic usage" auto-size />
+            <a-input v-model:value="formData.price" placeholder="Price" type="number" />
         </div>
         <div class="form-group">
             <label>Quantity</label>
-            <a-input v-model:value="formData.quantity" placeholder="Basic usage" auto-size />
+            <a-input v-model:value="formData.quantity" placeholder="Quantity" type="number" />
         </div>
         <div class="form-group">
             <label>Minimum buying</label>
@@ -135,7 +136,7 @@
             <div><strong>Created:</strong> {{ displayCreated }}</div>
             <div><strong>Update:</strong> {{ displayUpdated }}</div>
         </div>
-        <a-button type="primary" class="submit" @click="handleSubmitTicket">Save</a-button>
+        <a-button type="primary" class="submit" @click="handleSubmitTicket">{{ mode === "edit" ? 'Save' : mode === "add" ? 'Add' : 'Button' }}</a-button>
     </a-drawer>
 </template>
 
@@ -145,7 +146,10 @@
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
     import { dataTickets } from "@/stores/data_tickets"
     import { useUpdateTicket } from "@/use/useUpdateTicket"
+    import { notify } from "@kyvg/vue3-notification";
 
+    const now = DateTime.now().toUTC().toFormat('yyyyMMddHHmm').toString()
+    console.log(now)
     const data_tickets = dataTickets()
     const emit = defineEmits(['update:modelValue'])
     const props = defineProps({
@@ -174,8 +178,8 @@
         id: props.ticket.id,
         name: props.ticket.name,
         description: props.ticket.description,
-        start_date_time_utc: props.ticket.start_date_time_utc,
-        end_date_time_utc: props.ticket.end_date_time_utc,
+        start_date_time_utc: props.ticket.start_date_time_utc ? props.ticket.start_date_time_utc : now,
+        end_date_time_utc: props.ticket.end_date_time_utc ? props.ticket.start_date_time_utc : now,
         available: props.ticket.available,
         price: props.ticket.price,
         quantity: props.ticket.quantity,
@@ -249,22 +253,18 @@
     
     const handleStartDateChange = (e) => {
         const source = concatDateChange(e, displayLocalStartTime.value)
-        console.log(source)
         formData.start_date_time_utc = convertLocaltoUTC(source)
     }
     const handleStartTimeChange = (e) => {
         const source = concatTimeChange(displayLocalStartDate.value, e)
-        console.log(source)
         formData.start_date_time_utc = convertLocaltoUTC(source)
     }
     const handleEndDateChange = (e) => {
         const source = concatDateChange(e, displayLocalEndTime.value)
-        console.log(source)
         formData.end_date_time_utc = convertLocaltoUTC(source)
     }
     const handleEndTimeChange = (e) => {
         const source = concatTimeChange(displayLocalEndDate.value, e)
-        console.log(source)
         formData.end_date_time_utc = convertLocaltoUTC(source)
     }
     
@@ -347,9 +347,86 @@
         return useConvertUTCtoLocalDateToDisplay(formData.updated_date)
     })
 
+    const validate = reactive({
+        name: false,
+        description: false,
+        start_date_time: false,
+        end_date_time: false,
+        price: false,
+        quantity: false
+    })
+
+    const handleValidate = (validate) => {
+        const checkNumber = new RegExp('^[1-9][0-9]*$')
+
+        var name = false
+        var description = false
+        var start_date_time = false
+        var end_date_time = false
+        var price = false
+        var quantity = false
+
+        if(formData.name != '') {
+            name = true
+            validate.name = false
+        } else {
+            name = false
+            validate.name = true
+        }
+
+        // if(formData.description) {
+        //     description = true
+        //     validate.description = false
+        // } else {
+        //     description = false
+        //     validate.description = true
+        // }
+
+        // if(formData.start_date_time) {
+        //     start_date_time = true
+        //     validate.start_date_time = false
+        // } else {
+        //     start_date_time = false
+        //     validate.start_date_time = true
+        // }
+
+        // if(formData.end_date_time) {
+        //     end_date_time = true
+        //     validate.end_date_time = false
+        // } else {
+        //     end_date_time = false
+        //     validate.end_date_time = true
+        // }
+
+        // if(checkNumber.test(price)) {
+        //     end_date_time = true
+        //     validate.end_date_time = false
+        // } else {
+        //     end_date_time = false
+        //     validate.end_date_time = true
+        // }
+
+        // if(checkNumber.test(quantity)) {
+        //     end_date_time = true
+        //     validate.end_date_time = false
+        // } else {
+        //     end_date_time = false
+        //     validate.end_date_time = true
+        // }
+        
+        return true
+    }
+
+    
+
     const handleSubmitTicket = async () => {
-        await useUpdateTicket(props.ticket.id, formData)
-        await close()
+        if(handleValidate()) {
+            await useUpdateTicket(props.ticket.id, formData)
+            await close()
+            notify({ type: "success", title: "Saved 🎉" })
+        } else {
+            notify({ type: "error", title: "Something went wrong, Please Check again." }) 
+        }
     }
 
 </script>

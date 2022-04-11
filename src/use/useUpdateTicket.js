@@ -6,7 +6,7 @@ import { notify } from "@kyvg/vue3-notification";
 export const useUpdateTicket = async (ticketID, formData) => {
     const ticketRef = doc(db, "tickets", ticketID)
     try {
-        await updateDoc(ticketRef, { ...formData }).then(() => { notify({ type: "success", title: "Saved 🎉" }) })
+        await updateDoc(ticketRef, { ...formData })
         await useLoadTicketList()
     } catch (error) {
         // console.log(error)
