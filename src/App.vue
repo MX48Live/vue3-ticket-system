@@ -14,6 +14,7 @@
     import BootstrapVue3 from 'bootstrap-vue-3'
 
     onMounted(() => {
+        console.log('Load Ticket form Firebase 🫣')
         useLoadTicketList()
     })
 </script>

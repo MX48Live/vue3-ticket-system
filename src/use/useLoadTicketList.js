@@ -17,7 +17,9 @@ export const useLoadTicketList = async () => {
             ticket.id = doc.id
             data_tickets.addData(ticket) 
         })
+        console.log("Firebase Data added to Pinia Store ✅")
         data_tickets.setIsLoading(false)
+        data_tickets.setIsInitialLoading(false)
     } catch (error) {
         data_tickets.setIsLoading(false)
         notify({ type: "error", title: "Something went can not load data, please try again." }) 

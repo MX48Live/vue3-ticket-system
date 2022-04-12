@@ -1,38 +1,44 @@
 <template>
-    <loading  v-if="data_tickets.isLoading" />
-    <div v-if="!data_tickets.isLoading">
-      <div v-if="!isData">
+    <loading  v-if="data_tickets.isLoading && data_tickets.isInitialLoading "/>
+    <div v-if="!data_tickets.isInitialLoading">
+      <div v-if="data_tickets.data.length === 0">
           <div class="no-item">
             <strong><span>No Ticket</span></strong>
           </div>
       </div>
-      <Ticket v-if="isData" v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
+      
+      <div v-if="data_tickets.data !== 0">
+        <Ticket v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
+      </div>
+
       <div class="container"> 
         <div class="button-group">
           <a-button @click="showDrawer" type="primary" size="large">Add New Ticket</a-button>
         </div>
       </div>
+
       <div class="add-new-button">
         <AddEditTicket :ticket="formData" :activeDrawer="activeDrawer" v-model="activeDrawer" v-if="displayDrawer" mode="add" />
       </div>
     </div>
+
 </template>
 
 <script setup>
-    import { ref, reactive, watch } from 'vue';
+    import { ref, reactive, watch, onUpdated, onMounted } from 'vue';
     import Ticket from '@/components/ManageEvent/Ticket.vue';
     import AddEditTicket from '@/components/ManageEvent/AddEditTicket.vue'
     import { dataTickets } from "@/stores/data_tickets"
-    import { LoadingOutlined } from '@ant-design/icons-vue';
     import Loading from "@/components/common/Loading.vue"
     const data_tickets = dataTickets()
-    const isData = ref(data_tickets.data.length)
+    const finishedInitialLoading = ref(0)
 
     /** Drawer Handler **/
     const activeDrawer = ref(false)
     const displayDrawer = ref(false)
 
     const showDrawer = () => {
+      finishedInitialLoading.value = true
       activeDrawer.value = true;
     }
     watch(activeDrawer, () => {
@@ -44,6 +50,11 @@
         }, 300)
       }
     })
+
+    onMounted(() => {
+      finishedInitialLoading.value += 1
+    })
+
 
     const formData = reactive({
         name: '',
@@ -67,7 +78,6 @@
         setting_today_remaining: true,
         setting_show_if_inactive: true,
     })
-
 </script>
 
 <style lang="scss">
@@ -79,6 +89,7 @@
     }
   }
   .no-item {
+    border-radius: 6px;
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
