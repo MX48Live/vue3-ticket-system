@@ -253,10 +253,12 @@
     
     const handleStartDateChange = (e) => {
         const source = concatDateChange(e, displayLocalStartTime.value)
+        console.log(source)
         formData.start_date_time_utc = convertLocaltoUTC(source)
     }
     const handleStartTimeChange = (e) => {
         const source = concatTimeChange(displayLocalStartDate.value, e)
+        console.log(source)
         formData.start_date_time_utc = convertLocaltoUTC(source)
     }
     const handleEndDateChange = (e) => {
@@ -347,79 +349,42 @@
         return useConvertUTCtoLocalDateToDisplay(formData.updated_date)
     })
 
-    const validate = reactive({
-        name: false,
-        description: false,
-        start_date_time: false,
-        end_date_time: false,
-        price: false,
-        quantity: false
+    const formValidate = reactive({
+        name: true,
+        description: true,
+        start_date_time: true,
+        end_date_time: true,
+        price: true,
+        quantity: true
     })
 
-    const handleValidate = (validate) => {
+    const handleValidate = () => {
         const checkNumber = new RegExp('^[1-9][0-9]*$')
-
-        var name = false
-        var description = false
-        var start_date_time = false
-        var end_date_time = false
-        var price = false
-        var quantity = false
-
-        if(formData.name != '') {
-            name = true
-            validate.name = false
+        formData.name === '' ? formValidate.name = false : formValidate.name = true
+        formData.description === '' ? formValidate.description = false : formValidate.description = true
+        formData.start_date_time_utc.toString().length != 12 ? formValidate.start_date_time = false : formValidate.start_date_time = true
+        formData.end_date_time_utc.toString().length != 12 ? formValidate.end_date_time = false : formValidate.end_date_time = true
+        checkNumber.test(formData.price) ? formValidate.price = true : formValidate.price = false
+        checkNumber.test(formData.quantity) ? formValidate.quantity = true : formValidate.quantity = false
+        if(
+            formValidate.name && 
+            formValidate.description && 
+            formValidate.start_date_time && 
+            formValidate.end_date_time &&
+            formValidate.price &&
+            formValidate.quantity
+        ) {
+            return true
         } else {
-            name = false
-            validate.name = true
+            return false
         }
-
-        // if(formData.description) {
-        //     description = true
-        //     validate.description = false
-        // } else {
-        //     description = false
-        //     validate.description = true
-        // }
-
-        // if(formData.start_date_time) {
-        //     start_date_time = true
-        //     validate.start_date_time = false
-        // } else {
-        //     start_date_time = false
-        //     validate.start_date_time = true
-        // }
-
-        // if(formData.end_date_time) {
-        //     end_date_time = true
-        //     validate.end_date_time = false
-        // } else {
-        //     end_date_time = false
-        //     validate.end_date_time = true
-        // }
-
-        // if(checkNumber.test(price)) {
-        //     end_date_time = true
-        //     validate.end_date_time = false
-        // } else {
-        //     end_date_time = false
-        //     validate.end_date_time = true
-        // }
-
-        // if(checkNumber.test(quantity)) {
-        //     end_date_time = true
-        //     validate.end_date_time = false
-        // } else {
-        //     end_date_time = false
-        //     validate.end_date_time = true
-        // }
-        
-        return true
     }
 
     
 
     const handleSubmitTicket = async () => {
+        handleValidate()
+        console.log(formValidate.price)
         if(handleValidate()) {
             await useUpdateTicket(props.ticket.id, formData)
             await close()
