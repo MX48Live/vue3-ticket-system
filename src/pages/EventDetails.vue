@@ -87,7 +87,6 @@
             left: 0;
             top: 0;
             height: 100%;
-
         }
         .img-container {
             position: relative;

@@ -441,6 +441,26 @@
             color: #666;
         }
     }
+    .error-message {
+        display: none;
+    }
+    .form-group.error {
+        label {
+            color: red;
+        }
+        input, textarea {
+            border-color: red;
+        }
+        .error-message {
+            font-size: 10px;
+            font-weight: bold;
+            font-family: monospace;
+            color: red;
+            margin-top: 2px;
+            display: block;
+        }
+    }
+
     .date-time {
         div {
             display: grid;
@@ -529,27 +549,6 @@
         pointer-events: none;
         span {
             color: #eee;
-        }
-    }
-    
-    
-    .error-message {
-        display: none;
-    }
-    .form-group.error {
-        label {
-            color: red;
-        }
-        input, textarea {
-            border-color: red;
-        }
-        .error-message {
-            font-size: 10px;
-            font-weight: bold;
-            font-family: monospace;
-            color: red;
-            margin-top: 2px;
-            display: block;
         }
     }
 </style>
