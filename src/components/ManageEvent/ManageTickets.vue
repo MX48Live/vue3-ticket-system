@@ -1,7 +1,14 @@
 <template>
-    <Ticket v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
-    <div> 
-      <a-button @click="showDrawer">Add</a-button>
+    <div v-if="!isData">
+        <div class="no-item">
+          <strong><span>No Ticket</span></strong>
+        </div>
+    </div>
+    <Ticket v-if="isData" v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
+    <div class="container"> 
+      <div class="button-group">
+        <a-button @click="showDrawer" type="primary" size="large">Add New Ticket</a-button>
+      </div>
     </div>
     <AddEditTicket :ticket="formData" :activeDrawer="activeDrawer" v-model="activeDrawer" v-if="displayDrawer" mode="add" />
 </template>
@@ -12,6 +19,7 @@
     import AddEditTicket from '@/components/ManageEvent/AddEditTicket.vue'
     import { dataTickets } from "@/stores/data_tickets"
     const data_tickets = dataTickets()
+    const isData = ref(data_tickets.data.length)
 
     /** Drawer Handler **/
     const activeDrawer = ref(false)
@@ -54,3 +62,24 @@
     })
 
 </script>
+
+<style lang="scss">
+  .container {
+    max-width: 900px;
+    .button-group {
+      padding-top: 20px;
+      text-align: center;
+    }
+  }
+  .no-item {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    grid-gap: 10px;
+    font-size: 20px;
+    text-transform: uppercase;
+    color: #ccc;
+    border: #ccc 2px dashed;
+    text-align: center;
+  }
+</style>

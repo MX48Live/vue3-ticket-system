@@ -9,16 +9,16 @@
                 <div class="desc">{{ ticket.description }}</div>
                 <div class="status status-date" v-if="ticket.setting_start_date_time || ticket.setting_end_date_time">
                     <span v-if="ticket.start_date_time_utc && ticket.setting_start_date_time">
-                        <strong><span class="material-icons">calendar_today</span>เริ่ม:</strong> {{ displayStartDateTime }}
+                        <strong><span class="material-icons">calendar_today</span>Start:</strong> {{ displayStartDateTime }}
                     </span>
                     <span v-if="ticket.end_date_time_utc  && ticket.setting_end_date_time">
-                        <strong><span class="material-icons">calendar_today</span>สิ้นสุด:</strong> {{ displayEndDateTime }}
+                        <strong><span class="material-icons">calendar_today</span>End:</strong> {{ displayEndDateTime }}
                     </span>
                 </div>
                 <div class="status status-number" v-if="ticket.setting_total_remaining || ticket.setting_total_sale || ticket.setting_today_remaining">
-                    <span v-if="ticket.setting_total_remaining">คงเหลือ: {{ displayTotalRemaining }}</span>
-                    <span v-if="ticket.setting_total_sale && ticket.stats_total_sale > 0">จำนวนผู้ซื้อ: {{ ticket.stats_total_sale }}</span>
-                    <span v-if="ticket.setting_today_remaining && displayTodayRemaining > -1">คงเหลือวันนี้: {{ displayTodayRemaining }}</span>
+                    <span v-if="ticket.setting_total_remaining">Total Remaining: {{ displayTotalRemaining }}</span>
+                    <span v-if="ticket.setting_total_sale && ticket.stats_total_sale > 0">Total Sale: {{ ticket.stats_total_sale }}</span>
+                    <span v-if="ticket.setting_today_remaining && displayTodayRemaining > -1">Today's Remaining: {{ displayTodayRemaining }}</span>
                 </div>
             </div>
             <div class="ticket-price error" v-if="!enable"> 
@@ -69,13 +69,13 @@
         } else {
 
         }
-        error.value = "จำนวนคงเหลือวันนี้หมดแล้ว กรุณาลองใหม่วันพรุ่งนี้"
+        error.value = "Out of Order (Today)"
     }
     const checkQuantityRemaining = () => {
         if(totalRemaining != 0) {
             return true
         }
-        error.value = "จำนวนคงเหลือหมดแล้ว"
+        error.value = "Out of Order"
     }
     const checkTodayRemainingEnoughForMinimumBuying = () => {
         if(
@@ -83,7 +83,7 @@
         ) {
             return true
         }
-        error.value = "จำนวนคงเหลือ(วันนี้) ไม่เพียงพอต่อกำหนดจำนวนการซื้อขั้นต่ำ"
+        error.value = "Insufficiency amount due Minimum buying (Today)"
     }
     const checkTotalRemainingEnoughForMinimumBuying = () => {
         if(
@@ -91,19 +91,19 @@
         ) {
             return true
         }
-        error.value = "จำนวนคงเหลือ ไม่เพียงพอต่อกำหนดจำนวนการซื้อขั้นต่ำ"
+        error.value = "Insufficiency amount due Minimum buying"
     }
     const checkStartDate = () => {
         if(currentUTCTime >= props.ticket.start_date_time_utc) {
             return true
         }
-        error.value = "ยังไม่ถึงกำหนดการขาย"
+        error.value = "Starting Soon"
     }
     const checkEndDate = () => {
         if(currentUTCTime <= props.ticket.end_date_time_utc) {
             return true
         }
-        error.value = "สิ้นสุดกำหนดการขายแล้ว"
+        error.value = "End of Sale Period"
     }
     const checkInitialAvailability = () => {
         if(
@@ -359,6 +359,7 @@
                 color: var(--primary-color);
                 font-size: 13px;
                 margin-top: 5px;
+                margin-bottom: 10px;
             }
             .status {
                 font-size: 13px;

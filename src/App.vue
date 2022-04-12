@@ -14,7 +14,7 @@
     import BootstrapVue3 from 'bootstrap-vue-3'
 
     onMounted(() => {
-        // useLoadTicketList()
+        useLoadTicketList()
     })
 </script>
 

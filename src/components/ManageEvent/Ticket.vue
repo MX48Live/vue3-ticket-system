@@ -13,9 +13,9 @@
       </div>
       <div class="status-number">
           <span>Total Remaining: {{ displayTotalRemaining }}</span>
-          <span>Sale: {{ ticket.stats_total_sale }}</span>
+          <span>Total Sale: {{ ticket.stats_total_sale }}</span>
           <span v-if="ticket.setting_today_remaining && displayTodayRemaining !== '-'">Today's Remaining: {{ displayTodayRemaining }}</span>
-      </div>
+      </div> 
     </div>
 
       <a-button @click="showDrawer">Edit</a-button>
@@ -89,7 +89,6 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    border-radius: 6px;
     display: grid;
     grid-gap: 10px;
     margin-bottom: 20px;
