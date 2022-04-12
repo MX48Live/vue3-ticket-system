@@ -1,16 +1,21 @@
 <template>
-    <div v-if="!isData">
-        <div class="no-item">
-          <strong><span>No Ticket</span></strong>
+    <loading  v-if="data_tickets.isLoading" />
+    <div v-if="!data_tickets.isLoading">
+      <div v-if="!isData">
+          <div class="no-item">
+            <strong><span>No Ticket</span></strong>
+          </div>
+      </div>
+      <Ticket v-if="isData" v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
+      <div class="container"> 
+        <div class="button-group">
+          <a-button @click="showDrawer" type="primary" size="large">Add New Ticket</a-button>
         </div>
-    </div>
-    <Ticket v-if="isData" v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
-    <div class="container"> 
-      <div class="button-group">
-        <a-button @click="showDrawer" type="primary" size="large">Add New Ticket</a-button>
+      </div>
+      <div class="add-new-button">
+        <AddEditTicket :ticket="formData" :activeDrawer="activeDrawer" v-model="activeDrawer" v-if="displayDrawer" mode="add" />
       </div>
     </div>
-    <AddEditTicket :ticket="formData" :activeDrawer="activeDrawer" v-model="activeDrawer" v-if="displayDrawer" mode="add" />
 </template>
 
 <script setup>
@@ -18,6 +23,8 @@
     import Ticket from '@/components/ManageEvent/Ticket.vue';
     import AddEditTicket from '@/components/ManageEvent/AddEditTicket.vue'
     import { dataTickets } from "@/stores/data_tickets"
+    import { LoadingOutlined } from '@ant-design/icons-vue';
+    import Loading from "@/components/common/Loading.vue"
     const data_tickets = dataTickets()
     const isData = ref(data_tickets.data.length)
 
@@ -81,5 +88,8 @@
     color: #ccc;
     border: #ccc 2px dashed;
     text-align: center;
+  }
+  .add-new-button {
+    margin-bottom: 40px;
   }
 </style>

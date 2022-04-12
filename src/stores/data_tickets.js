@@ -74,7 +74,7 @@ export const dataTickets = defineStore({
                 setting_show_if_inactive: true,
             },
         ],
-        loaded: false
+        isLoading: false
     }),
     actions: {
         addData(data) {
@@ -86,6 +86,9 @@ export const dataTickets = defineStore({
         updateTicket(ticketID, updateData) {
             let index = this.data.findIndex(item => item.id === ticketID)
             this.data[index] = {...updateData}
+        },
+        setIsLoading(condition) {
+            this.isLoading = condition
         }
     }
 })

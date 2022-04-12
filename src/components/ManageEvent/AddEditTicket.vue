@@ -141,8 +141,22 @@
             <div><strong>Created:</strong> {{ displayCreated }}</div>
             <div><strong>Update:</strong> {{ displayUpdated }}</div>
         </div>
-        <a-button type="primary" class="submit" size="large" @click="handleSubmitTicket">{{ mode === "edit" ? 'Save' : mode === "add" ? 'Add' : 'Button' }}</a-button>
-        <div v-if='mode === "edit"' class="deleteBtn">
+        <a-button 
+            type="primary" 
+            class="submit" 
+            size="large" 
+            @click="handleSubmitTicket"
+            :class="isLoading ? 'loading' : ''"
+        >
+            <span v-if="isLoading">
+                <loading-outlined />
+            </span>
+            <span v-if="!isLoading">
+                {{ mode === "edit" ? 'Save' : mode === "add" ? 'Add' : 'Button' }}
+            </span>
+
+        </a-button>
+        <div v-if='mode === "edit"' class="deleteBtn" :class="isLoading ? 'loading' : ''">
             <span @click="confirmDelete">Delete</span>
         </div>
     </a-drawer>
@@ -156,6 +170,7 @@
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
     import { convertUTCtoLocal, convertLocaltoUTC, convertDateForDisplay, convertTimeForDisplay } from "@/use/useTimeConvert"
     import { dataTickets } from "@/stores/data_tickets"
+    import { LoadingOutlined } from '@ant-design/icons-vue';
     import { useAddNewTicket } from "@/use/useAddNewTicket"
     import { useUpdateTicket } from "@/use/useUpdateTicket"
     import { useDeleteTicket } from "@/use/useDeleteTicket"
@@ -389,20 +404,28 @@
     }
 
     /** Form Submit **/
+    const isLoading = ref(false)
+    const setIsLoading = (value) => {
+        isLoading.value = value
+    }
     const handleSubmitTicket = async () => {
+        setIsLoading(true)
         if(handleValidate()) {
             updateUpdatedDateTime()
             if(props.mode === 'edit') {
                 await useUpdateTicket(props.ticket.id, formData)
+                await setIsLoading(false)
                 await close()
-                notify({ type: "success", title: "Saved 🎉" })
+                await notify({ type: "success", title: "Saved 🎉" })
             }
             if(props.mode === 'add') {
                 await useAddNewTicket(formData)
+                await setIsLoading(false)
                 await close()
                 notify({ type: "success", title: "🎉 New Ticket Added" })
             }
         } else {
+            await setIsLoading(false)
             notify({ type: "error", title: "Something went wrong, Please Check again." }) 
         }
     }
@@ -481,6 +504,14 @@
     button.submit {
         width: 100%;
     }
+    button.loading {
+        pointer-events: none;
+        background-color: #ccc;
+        border-color: #ccc; 
+        > span {
+            display: grid;
+        }
+    }
     .deleteBtn {
         text-align: center;
         display: block;
@@ -492,6 +523,12 @@
             &:hover {
                 color: #CD3939;
             }
+        }
+    }
+    .deleteBtn.loading {
+        pointer-events: none;
+        span {
+            color: #eee;
         }
     }
     

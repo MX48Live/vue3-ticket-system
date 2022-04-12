@@ -3,10 +3,13 @@
         <div class="ticket-list-container">
             <div class="header">Select Your Ticket</div>
             <div class="list-group">
-                <div v-if="!isData" class="coming-soon">
+                <loading  v-if="data_tickets.isLoading" />
+            </div>
+            <div class="list-group" v-if="!data_tickets.isLoading">
+                <div v-if="!checkIfData" class="coming-soon">
                     Coming Soon
                 </div>
-                <Ticket v-if="isData" v-for="ticket in data_tickets.data" :key="ticket.id" :ticket="ticket"/>
+                <Ticket v-if="checkIfData" v-for="ticket in data_tickets.data" :key="ticket.id" :ticket="ticket"/>
             </div>
         </div>
     </div>
@@ -14,13 +17,31 @@
 </template>
 
 <script setup>
-    import { ref } from "vue";
+    import { ref, computed } from "vue";
     import Ticket from "@/components/EventDetails/Ticket.vue"
     import { dataTickets } from "@/stores/data_tickets"
     import { userCart } from "@/stores/user_cart"
+    import Loading from "@/components/common/Loading.vue"
+
     const data_tickets = dataTickets()
     const user_cart = userCart()
-    const isData = ref(data_tickets.data.length)
+
+    const checkIfData = computed(() => {
+        if(!data_tickets.data.length) {
+            return false
+        } else {
+            let count = 0
+            data_tickets.data.map((item) => {
+                if(item.setting_show_if_inactive === false) {
+                    count++
+                }
+            })
+            if(count === data_tickets.data.length) {
+                return false
+            }
+        }
+        return true
+    })
 </script>
 
 <style lang="scss" scoped>
