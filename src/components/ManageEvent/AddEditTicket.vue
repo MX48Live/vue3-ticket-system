@@ -6,37 +6,42 @@
         placement="right"
         @close="close"
     >
-        <div class="form-group">
+        <div class="form-group" :class="!formValidate.name ? 'error' : ''">
             <label>Ticket Name</label>
             <a-input v-model:value="formData.name" placeholder="Ticket Name" />
-            <span class="error"></span>
+            <span class="error-message">Please Enter Ticket Name</span>
         </div>
-        <div class="form-group">
+        <div class="form-group" :class="!formValidate.description ? 'error' : ''">
             <label>Description</label>
             <a-textarea v-model:value="formData.description" placeholder="Description" auto-size />
+            <span class="error-message">Please Add Description</span>
         </div>
-        <div class="form-group date-time">
+        <div class="form-group date-time" :class="!formValidate.start_date_time ? 'error' : ''">
             <label>Start Date</label>
             <div>
                 <a-input v-model:value="displayLocalStartDate" type="date" id="start_date" @change="handleStartDateChange" auto-size />
                 <a-input v-model:value="displayLocalStartTime" type="time" id="start_time" @change="handleStartTimeChange" auto-size />
             </div>
+            <span class="error-message">Example 01/01/2022 08:00 AM</span>
         </div>
-        <div class="form-group date-time">
+        <div class="form-group date-time" :class="!formValidate.end_date_time ? 'error' : ''">
             <label>End Date</label>
             <div>
                 <a-input v-model:value="displayLocalEndDate" type="date" id="end_date" @change="handleEndDateChange" auto-size />
                 <a-input v-model:value="displayLocalEndTime" type="time" id="end_time" @change="handleEndTimeChange" auto-size />
             </div>
+            <span class="error-message">Example 01/01/2022 08:00 AM</span>
         </div>
         
-        <div class="form-group">
+        <div class="form-group" :class="!formValidate.price ? 'error' : ''">
             <label>Price</label>
             <a-input v-model:value="formData.price" placeholder="Price" type="number" />
+            <span class="error-message">Price format is not correct</span>
         </div>
-        <div class="form-group">
+        <div class="form-group" :class="!formValidate.quantity ? 'error' : ''">
             <label>Quantity</label>
             <a-input v-model:value="formData.quantity" placeholder="Quantity" type="number" />
+            <span class="error-message">Quantity format is not correct</span>
         </div>
         <div class="form-group">
             <label>Minimum buying</label>
@@ -136,7 +141,7 @@
             <div><strong>Created:</strong> {{ displayCreated }}</div>
             <div><strong>Update:</strong> {{ displayUpdated }}</div>
         </div>
-        <a-button type="primary" class="submit" @click="handleSubmitTicket">{{ mode === "edit" ? 'Save' : mode === "add" ? 'Add' : 'Button' }}</a-button>
+        <a-button type="primary" class="submit" size="large" @click="handleSubmitTicket">{{ mode === "edit" ? 'Save' : mode === "add" ? 'Add' : 'Button' }}</a-button>
         <div v-if='mode === "edit"' class="deleteBtn">
             <span @click="confirmDelete">Delete</span>
         </div>
@@ -147,7 +152,7 @@
     import { DateTime } from "luxon";
     import { Modal } from 'ant-design-vue';
     import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
-    import { ref, reactive, computed, watch, createVNode, onUnmounted, onMounted } from 'vue'
+    import { ref, reactive, computed, watch, createVNode } from 'vue'
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
     import { convertUTCtoLocal, convertLocaltoUTC, convertDateForDisplay, convertTimeForDisplay } from "@/use/useTimeConvert"
     import { dataTickets } from "@/stores/data_tickets"
@@ -487,6 +492,27 @@
             &:hover {
                 color: #CD3939;
             }
+        }
+    }
+    
+    
+    .error-message {
+        display: none;
+    }
+    .form-group.error {
+        label {
+            color: red;
+        }
+        input, textarea {
+            border-color: red;
+        }
+        .error-message {
+            font-size: 10px;
+            font-weight: bold;
+            font-family: monospace;
+            color: red;
+            margin-top: 2px;
+            display: block;
         }
     }
 </style>
