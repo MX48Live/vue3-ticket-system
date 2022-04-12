@@ -1,10 +1,10 @@
 <template>
     <a-drawer
-      v-model:visible="isShowDrawer"
-      class="custom-class"
-      :title="[ticket.name ? ticket.name : 'Add New Ticket' ]"
-      placement="right"
-      @close="close"
+        v-model:visible="activeDrawer"
+        class="custom-class"
+        :title="[ticket.name ? ticket.name : 'Add New Ticket' ]"
+        placement="right"
+        @close="close"
     >
         <div class="form-group">
             <label>Ticket Name</label>
@@ -137,19 +137,26 @@
             <div><strong>Update:</strong> {{ displayUpdated }}</div>
         </div>
         <a-button type="primary" class="submit" @click="handleSubmitTicket">{{ mode === "edit" ? 'Save' : mode === "add" ? 'Add' : 'Button' }}</a-button>
+        <div v-if='mode === "edit"' class="deleteBtn">
+            <span @click="confirmDelete">Delete</span>
+        </div>
     </a-drawer>
 </template>
 
 <script setup>
     import { DateTime } from "luxon";
-    import { ref, reactive, computed, watch } from 'vue'
+    import { Modal } from 'ant-design-vue';
+    import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+    import { ref, reactive, computed, watch, createVNode, onUnmounted, onMounted } from 'vue'
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
+    import { convertUTCtoLocal, convertLocaltoUTC, convertDateForDisplay, convertTimeForDisplay } from "@/use/useTimeConvert"
     import { dataTickets } from "@/stores/data_tickets"
+    import { useAddNewTicket } from "@/use/useAddNewTicket"
     import { useUpdateTicket } from "@/use/useUpdateTicket"
+    import { useDeleteTicket } from "@/use/useDeleteTicket"
     import { notify } from "@kyvg/vue3-notification";
 
     const now = DateTime.now().toUTC().toFormat('yyyyMMddHHmm').toString()
-    console.log(now)
     const data_tickets = dataTickets()
     const emit = defineEmits(['update:modelValue'])
     const props = defineProps({
@@ -163,33 +170,35 @@
             type: Boolean,
             default: false
         },
-        isShowDrawer: {
+        activeDrawer: {
             type: Boolean,
             default: false
         }
     })
+
     
     /** handle Close Drawer **/
     const close = (e) => {
         emit('update:modelValue', false)
+
     }
 
     const formData = reactive({
         id: props.ticket.id,
         name: props.ticket.name,
         description: props.ticket.description,
-        start_date_time_utc: props.ticket.start_date_time_utc ? props.ticket.start_date_time_utc : now,
-        end_date_time_utc: props.ticket.end_date_time_utc ? props.ticket.start_date_time_utc : now,
+        start_date_time_utc: parseInt(props.ticket.start_date_time_utc ? props.ticket.start_date_time_utc : now),
+        end_date_time_utc: parseInt(props.ticket.end_date_time_utc ? props.ticket.end_date_time_utc : now),
         available: props.ticket.available,
-        price: props.ticket.price,
-        quantity: props.ticket.quantity,
-        minimum_buying: props.ticket.minimum_buying,
-        limit_per_day: props.ticket.limit_per_day,
-        limit_per_time: props.ticket.limit_per_time,
-        created_date: props.ticket.created_date,
-        updated_date: props.ticket.updated_date,
-        stats_total_sale: props.ticket.stats_total_sale,
-        stats_today_sale: props.ticket.stats_today_sale,
+        price: parseInt(props.ticket.price),
+        quantity: parseInt(props.ticket.quantity),
+        minimum_buying: parseInt(props.ticket.minimum_buying),
+        limit_per_day: parseInt(props.ticket.limit_per_day),
+        limit_per_time: parseInt(props.ticket.limit_per_time),
+        created_date: parseInt(props.ticket.created_date),
+        updated_date: parseInt(props.ticket.updated_date),
+        stats_total_sale: parseInt(props.ticket.stats_total_sale),
+        stats_today_sale: parseInt(props.ticket.stats_today_sale),
         setting_start_date_time: props.ticket.setting_start_date_time,
         setting_end_date_time: props.ticket.setting_end_date_time,
         setting_total_remaining: props.ticket.setting_total_remaining,
@@ -197,47 +206,24 @@
         setting_today_remaining: props.ticket.setting_today_remaining,
         setting_show_if_inactive: props.ticket.setting_show_if_inactive,
     })
-    const dateTimeSplitter = (source) => {
-        const year = parseInt(source.toString().slice(0,4))
-        const month = parseInt(source.toString().slice(4,6))
-        const date = parseInt(source.toString().slice(6,8))
-        const hour = parseInt(source.toString().slice(8,10))
-        const min = parseInt(source.toString().slice(10,12))
-        return [year, month, date, hour, min]
-    }
-    const convertUTCtoLocal = (sourceUTC) => { 
-        const [year, month, date, hour, min] = dateTimeSplitter(sourceUTC)
-        const localTime = DateTime.utc(year, month, date, hour, min).toLocal().toFormat('yyyyMMddHHmm').toString()
-        return parseInt(localTime)
-    }
-    const convertLocaltoUTC = (sourceLocal) => {
-        const [year, month, date, hour, min] = dateTimeSplitter(sourceLocal)
-        const UTCTime = DateTime.local(year, month, date, hour, min).toUTC().toFormat('yyyyMMddHHmm').toString()
-        return parseInt(UTCTime)
-    }
+
+    
     const LocalStartDateTime = ref(convertUTCtoLocal(formData.start_date_time_utc))
     const LocalEndDateTime = ref(convertUTCtoLocal(formData.end_date_time_utc))
-
-    /** handle Display date on input field **/
-    const convertDateForDisplay = (source) => {
-        let fullDate = source.toString().slice(0,8)
-        let year = fullDate.slice(0,4)
-        let month = fullDate.slice(4,6)
-        let date = fullDate.slice(6,8)
-        let concat = (year+'-'+month+'-'+date).toString()
-        return concat
-    }
-    const convertTimeForDisplay = (source) => {
-        let fullTime = source.toString().slice(8,12)
-        let hour = fullTime.slice(0,2)
-        let minute = fullTime.slice(2,4)
-        let concat = (hour+':'+minute).toString()
-        return concat
-    }
     const displayLocalStartDate = ref(convertDateForDisplay(LocalStartDateTime.value))
     const displayLocalStartTime = ref(convertTimeForDisplay(LocalStartDateTime.value))
     const displayLocalEndDate = ref(convertDateForDisplay(LocalEndDateTime.value))
     const displayLocalEndTime = ref(convertTimeForDisplay(LocalEndDateTime.value))
+
+     
+     /** Display Create Edit time **/
+    const displayCreated = computed(() => {
+        return useConvertUTCtoLocalDateToDisplay(formData.created_date)
+    })
+    const displayUpdated = computed(() => {
+        return useConvertUTCtoLocalDateToDisplay(formData.updated_date)
+    })
+
 
     /** Date Time handler **/
     const concatDateChange = (e, defaultTime) => {
@@ -250,7 +236,6 @@
         const source = concat.replace(/[-: ]/g, "")
         return source
     }
-    
     const handleStartDateChange = (e) => {
         const source = concatDateChange(e, displayLocalStartTime.value)
         console.log(source)
@@ -269,8 +254,8 @@
         const source = concatTimeChange(displayLocalEndDate.value, e)
         formData.end_date_time_utc = convertLocaltoUTC(source)
     }
-    
 
+    
     /** handle handleMinimumBuying Drawer **/
     const handleMinimumBuying = (type) => {
         actionButtons(type, 'minimum_buying', 'limit_per_time', isLimitPerTime.value)
@@ -314,6 +299,7 @@
         }
     })
 
+
     const actionButtons = (type, currentTarget, alsoUpdate, alsoUpdateIsActive) => {
         if(type === 'increase') {
             formData[currentTarget]++
@@ -332,6 +318,8 @@
             }
         }
     }
+
+
     const calculatedNumber = (data) => {
         if(formData[data] > formData.quantity) {
             formData[data] = formData.quantity
@@ -342,13 +330,8 @@
         return formData[data]
     }
 
-    const displayCreated = computed(() => {
-        return useConvertUTCtoLocalDateToDisplay(formData.created_date)
-    })
-    const displayUpdated = computed(() => {
-        return useConvertUTCtoLocalDateToDisplay(formData.updated_date)
-    })
-
+    
+    /** handle Validate Form **/
     const formValidate = reactive({
         name: true,
         description: true,
@@ -357,7 +340,6 @@
         price: true,
         quantity: true
     })
-
     const handleValidate = () => {
         const checkNumber = new RegExp('^[1-9][0-9]*$')
         formData.name === '' ? formValidate.name = false : formValidate.name = true
@@ -366,34 +348,59 @@
         formData.end_date_time_utc.toString().length != 12 ? formValidate.end_date_time = false : formValidate.end_date_time = true
         checkNumber.test(formData.price) ? formValidate.price = true : formValidate.price = false
         checkNumber.test(formData.quantity) ? formValidate.quantity = true : formValidate.quantity = false
-        if(
-            formValidate.name && 
-            formValidate.description && 
-            formValidate.start_date_time && 
-            formValidate.end_date_time &&
-            formValidate.price &&
-            formValidate.quantity
-        ) {
-            return true
-        } else {
-            return false
-        }
+        return  formValidate.name && 
+                formValidate.description && 
+                formValidate.start_date_time && 
+                formValidate.end_date_time &&
+                formValidate.price &&
+                formValidate.quantity
     }
 
-    
 
+    const updateUpdatedDateTime = () => {
+        if(props.mode === 'add') {
+            formData.created_date = parseInt(now)
+        }
+        formData.updated_date = parseInt(now)
+    }
+
+    const confirmDelete = () => {
+        Modal.confirm({
+            title: 'Delete ?',
+            icon: createVNode(ExclamationCircleOutlined),
+            content: `${formData.name} Ticket`,
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'No',
+
+            onOk() {
+                const resp = useDeleteTicket(formData.id)
+                if(resp) {
+                    notify({ type: "success", title: `😵 Deleted ${formData.name}` })
+                    close()
+                }
+            },
+        });
+    }
+
+    /** Form Submit **/
     const handleSubmitTicket = async () => {
-        handleValidate()
-        console.log(formValidate.price)
         if(handleValidate()) {
-            await useUpdateTicket(props.ticket.id, formData)
-            await close()
-            notify({ type: "success", title: "Saved 🎉" })
+            updateUpdatedDateTime()
+            if(props.mode === 'edit') {
+                await useUpdateTicket(props.ticket.id, formData)
+                await close()
+                notify({ type: "success", title: "Saved 🎉" })
+            }
+            if(props.mode === 'add') {
+                await useAddNewTicket(formData)
+                await close()
+                notify({ type: "success", title: "🎉 New Ticket Added" })
+            }
         } else {
             notify({ type: "error", title: "Something went wrong, Please Check again." }) 
         }
     }
-
 </script>
 
 <style lang="scss" scoped>
@@ -468,5 +475,18 @@
     }
     button.submit {
         width: 100%;
+    }
+    .deleteBtn {
+        text-align: center;
+        display: block;
+        margin-top: 15px;
+        span {
+            padding: 10px;
+            cursor: pointer;
+            color: #888888;
+            &:hover {
+                color: #CD3939;
+            }
+        }
     }
 </style>

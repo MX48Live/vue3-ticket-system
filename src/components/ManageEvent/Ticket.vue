@@ -5,29 +5,26 @@
       <a-tag color="red" v-if="!ticket.available"><strong>{{ ticket.available ? "" : "OFF" }}</strong></a-tag>
     </div>
     <div>
-      <h3>{{ ticket.name }}</h3>
+      <h3>{{ ticket.name }}<span class="hash-ticket-id">#{{ displayTicketID }}</span></h3>
       <div class="description">{{ ticket.description }}</div>
       <div class="date-time">
-        <span><strong><span class="material-icons">calendar_today</span> เริ่ม: </strong>{{ displayStartDateTime }}</span>
-        <span><strong><span class="material-icons">calendar_today</span> สิ้นสุด: </strong>{{ displayEndDateTime }}</span>
+        <span><strong><span class="material-icons">calendar_today</span> Start: </strong>{{ displayStartDateTime }}</span>
+        <span><strong><span class="material-icons">calendar_today</span> End: </strong>{{ displayEndDateTime }}</span>
       </div>
       <div class="status-number">
-          <span>{{ ticket.id}}</span>
-          <span>คงเหลือ: {{ displayTotalRemaining }}</span>
-          <span>จำนวนผู้ซื้อ: {{ ticket.stats_total_sale }}</span>
-          <span v-if="ticket.setting_today_remaining && displayTodayRemaining !== '-'">คงเหลือวันนี้: {{ displayTodayRemaining }}</span>
+          <span>Total Remaining: {{ displayTotalRemaining }}</span>
+          <span>Sale: {{ ticket.stats_total_sale }}</span>
+          <span v-if="ticket.setting_today_remaining && displayTodayRemaining !== '-'">Today's Remaining: {{ displayTodayRemaining }}</span>
       </div>
     </div>
 
-    <div> 
       <a-button @click="showDrawer">Edit</a-button>
-    </div>
-    <AddEditTicket :ticket="ticket" :isShowDrawer="isShowDrawer" v-model="isShowDrawer" mode="edit" />
+      <AddEditTicket :ticket="ticket" :activeDrawer="activeDrawer" v-model="activeDrawer" v-if="displayDrawer" mode="edit" />
   </div>
 </template>
 
 <script setup>
-    import { computed, ref } from "vue"
+    import { computed, ref, watch } from "vue"
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
     import AddEditTicket from "@/components/ManageEvent/AddEditTicket.vue"
     const props = defineProps({
@@ -38,10 +35,28 @@
     })
 
     /** Drawer Handler **/
-    const isShowDrawer = ref(false)
+    const activeDrawer = ref(false)
+    const displayDrawer = ref(false)
+
     const showDrawer = () => {
-      isShowDrawer.value = true;
+      activeDrawer.value = true;
     }
+    watch(activeDrawer, () => {
+      if(activeDrawer.value) {
+        displayDrawer.value = true
+      } else {
+        setTimeout(() => {
+          displayDrawer.value = false
+        }, 300)
+      }
+    })
+
+
+    /** Ticket ID **/
+    const displayTicketID = computed(() => {
+        const ticketID = props.ticket.id.toString().slice(0,5)
+        return ticketID
+    })
 
     /** Date Time Formatter **/
     const displayStartDateTime = computed(() => {
@@ -124,5 +139,11 @@
           margin-right: 10px;
           margin-bottom: 5px;
       }
+  }
+  .hash-ticket-id {
+    text-transform: uppercase;
+    margin-left: 10px;
+    color: #CCC;
+    font-family: monospace;
   }
 </style>

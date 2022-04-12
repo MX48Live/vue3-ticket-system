@@ -23,7 +23,7 @@ export const useConvertUTCtoLocalDateToDisplay = (number) => {
     const localHour = localArr.slice(8,10).join('')
     const localMinute =  localArr.slice(10,12).join('')
 
-    const thaiMonth = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
+    const thaiMonth = ['January','February','March','April','May','June','July','August','September','October','November','December']
     const thaiYear = localYear+543
 
     return localDay+ " " + thaiMonth[localMonth-1] + " " + thaiYear + " · " + localHour + ":" + localMinute

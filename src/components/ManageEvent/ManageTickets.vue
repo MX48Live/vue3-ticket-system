@@ -3,21 +3,32 @@
     <div> 
       <a-button @click="showDrawer">Add</a-button>
     </div>
-    <AddEditTicket :ticket="formData" :isShowDrawer="isShowDrawer" v-model="isShowDrawer" mode="add" />
+    <AddEditTicket :ticket="formData" :activeDrawer="activeDrawer" v-model="activeDrawer" v-if="displayDrawer" mode="add" />
 </template>
 
 <script setup>
-    import { ref, reactive } from 'vue';
+    import { ref, reactive, watch } from 'vue';
     import Ticket from '@/components/ManageEvent/Ticket.vue';
     import AddEditTicket from '@/components/ManageEvent/AddEditTicket.vue'
     import { dataTickets } from "@/stores/data_tickets"
     const data_tickets = dataTickets()
 
     /** Drawer Handler **/
-    const isShowDrawer = ref(false)
+    const activeDrawer = ref(false)
+    const displayDrawer = ref(false)
+
     const showDrawer = () => {
-      isShowDrawer.value = true;
+      activeDrawer.value = true;
     }
+    watch(activeDrawer, () => {
+      if(activeDrawer.value) {
+        displayDrawer.value = true
+      } else {
+        setTimeout(() => {
+          displayDrawer.value = false
+        }, 300)
+      }
+    })
 
     const formData = reactive({
         name: '',
