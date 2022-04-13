@@ -9,7 +9,10 @@
                 <div v-if="!checkIfData" class="coming-soon">
                     Coming Soon
                 </div>
-                <Ticket v-if="checkIfData" v-for="ticket in data_tickets.data" :key="ticket.id" :ticket="ticket"/>
+                <div v-if="checkIfData" >
+                    <Ticket v-for="ticket in data_tickets.data" :key="ticket.id" :ticket="ticket"/>
+                    <SummaryButton />
+                </div>
             </div>
         </div>
     </div>
@@ -22,6 +25,7 @@
     import { dataTickets } from "@/stores/data_tickets"
     import { userCart } from "@/stores/user_cart"
     import Loading from "@/components/common/Loading.vue"
+    import SummaryButton from "./SummaryButton.vue";
 
     const data_tickets = dataTickets()
     const user_cart = userCart()

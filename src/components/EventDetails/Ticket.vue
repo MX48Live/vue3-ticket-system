@@ -42,12 +42,13 @@
     import { computed, onMounted, reactive, ref } from "vue"
     import { userCart } from "@/stores/user_cart"
     import { useConvertUTCtoLocalDateToDisplay } from "@/use/useConvertUTCtoLocalDateToDisplay"
-
+    import { useInitialAvailability } from "@/use/useInitialAvailability"
+    const  [isAvailable, errorMessage] = useInitialAvailability(props.ticket)
     const user_cart = userCart()
     const enable = ref(false)
     const quantity = ref(props.ticket.minimum_buying)
     const selected = ref(false)
-    const error = ref('Not Available')
+    const error = ref(errorMessage)
 
     const props = defineProps({
         ticket: {
@@ -56,65 +57,18 @@
         }
     })
 
-    const currentUTCTime = parseInt(DateTime.now().toUTC().toFormat('yyyyMMddHHmm'))
+    // const currentUTCTime = parseInt(DateTime.now().toUTC().toFormat('yyyyMMddHHmm'))
     const totalRemaining = props.ticket.quantity - props.ticket.stats_total_sale
     const todayRemaining = props.ticket.limit_per_day - props.ticket.stats_today_sale
+    
     // Check InitialAvailable
     onMounted(() => {
         checkInitialAvailability()
     })
-    const checkTodayRemaining = () => {
-        if(todayRemaining > 0 || todayRemaining < 0) {
-            return true
-        } else {
 
-        }
-        error.value = "Out of Order (Today)"
-    }
-    const checkQuantityRemaining = () => {
-        if(totalRemaining != 0) {
-            return true
-        }
-        error.value = "Out of Order"
-    }
-    const checkTodayRemainingEnoughForMinimumBuying = () => {
-        if(
-            todayRemaining >= props.ticket.minimum_buying || todayRemaining < 0
-        ) {
-            return true
-        }
-        error.value = "Insufficiency amount due Minimum buying (Today)"
-    }
-    const checkTotalRemainingEnoughForMinimumBuying = () => {
-        if(
-            totalRemaining >= props.ticket.minimum_buying || totalRemaining < 0
-        ) {
-            return true
-        }
-        error.value = "Insufficiency amount due Minimum buying"
-    }
-    const checkStartDate = () => {
-        if(currentUTCTime >= props.ticket.start_date_time_utc) {
-            return true
-        }
-        error.value = "Starting Soon"
-    }
-    const checkEndDate = () => {
-        if(currentUTCTime <= props.ticket.end_date_time_utc) {
-            return true
-        }
-        error.value = "End of Sale Period"
-    }
     const checkInitialAvailability = () => {
-        if(
-            checkStartDate() &&
-            checkEndDate() &&
-            checkQuantityRemaining() && 
-            checkTodayRemaining() && 
-            checkTodayRemainingEnoughForMinimumBuying() &&
-            checkTotalRemainingEnoughForMinimumBuying() &&
-            props.ticket.available
-        ) {
+        user_cart.addTicketStatus(isAvailable)
+        if(isAvailable) {
             enable.value = true
             checkActionButtonAvailability()
         }
