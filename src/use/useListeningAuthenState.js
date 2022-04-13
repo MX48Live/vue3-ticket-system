@@ -3,13 +3,15 @@ import { authStatus } from "@/stores/auth_status"
 import router from "../router"
 
 export const listeningAuthenState = async () => {
-    const authen_status = authStatus()
+    const auth_status = authStatus()
     
     await onAuthStateChanged(getAuth(), (user) => {
         if (user) {
-            authen_status.userSignIn()
+            auth_status.userSignIn()
+            auth_status.finishChecking()
         } else {
-            authen_status.userSignOut()
+            auth_status.userSignOut()
+            auth_status.finishChecking()
         }
     }) 
 }

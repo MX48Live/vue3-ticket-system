@@ -1,6 +1,9 @@
 <template>
     <div class="sign-page-container">
-        <div class="sign-in-box">
+        <div v-if="checkingStatus" class="checking-authen">
+            <loading-outlined />
+        </div>
+        <div class="sign-in-box" v-if="!checkingStatus">
             <h2>Sign In</h2>
                 <div class="form-group" :class="!formValidate.email ? 'error' : ''">
                     <label>Email</label>
@@ -25,15 +28,33 @@
 </template>
 
 <script setup>
-    import { reactive, ref } from 'vue';
+    import { computed, reactive, ref, watch } from 'vue';
     import { signInWithEmailAndPassword } from "firebase/auth"
     import { getAuth, signOut } from "firebase/auth"
     import { notify } from "@kyvg/vue3-notification"
     import { LoadingOutlined } from '@ant-design/icons-vue';
+    import { authStatus } from "@/stores/auth_status"
     import router from '@/router';
 
+    const auth_status = authStatus()
     const auth = getAuth()
     const isLoading = ref(false)
+    const checkingAuthen = ref()
+
+    watch(checkingAuthen, (checked) => {
+        if(checked) {
+            alert('changed')
+        }
+    })
+
+    const checkingStatus = computed(() => {
+        if(!auth_status.isCheckingAuthen) {
+            if(auth_status.isUser) {
+                router.push({ path: '/manage-tickets' })
+            }
+        }
+        return auth_status.isCheckingAuthen
+    })
 
     const formData = reactive({
       email: '',
@@ -123,5 +144,8 @@
             background-color: #ccc;
             border-color: #ccc;
         }
+    }
+    .checking-authen {
+        font-size: 50px;
     }
 </style>

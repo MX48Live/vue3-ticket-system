@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 export const authStatus = defineStore({
     id: 'auth_status',
     state: () => ({
-        isUser: false
+        isUser: false,
+        isCheckingAuthen: true
     }),
     actions: {
         userSignOut() {
@@ -11,6 +12,9 @@ export const authStatus = defineStore({
         },
         userSignIn() {
             this.isUser = true
-        },
+        }, 
+        finishChecking() {
+            this.isCheckingAuthen = false
+        }
     }
 })
