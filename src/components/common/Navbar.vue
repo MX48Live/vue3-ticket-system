@@ -10,6 +10,7 @@
                     <RouterLink to="/" @click="closeMenu">Event Detail</RouterLink>
                     <!-- <RouterLink to="/">My Ticket</RouterLink> -->
                     <RouterLink to="/manage-tickets" @click="closeMenu">Organizer</RouterLink>
+                    <RouterLink to="/sign-out" v-if="auth_status.isUser" @click="closeMenu" class="sign-out">Sign Out</RouterLink>
                 </nav>
             </div>
         </div>
@@ -18,15 +19,20 @@
 
 <script setup>
     import { ref } from 'vue'
+    import { getAuth, onAuthStateChanged } from "firebase/auth"
+    import { authStatus } from "@/stores/auth_status"
+
+    const auth_status = authStatus()
+    
     const isOpen = ref(false)
 
     const toggleMenu = (e) => {
         isOpen.value = !isOpen.value
     }
-
     const closeMenu = (e) => {
         isOpen.value = false
     }
+
 
 </script>
 
@@ -110,6 +116,9 @@
         a:hover,
         .router-link-exact-active {
             background-color: rgba($color: #CCCCCC, $alpha: 0.2);
+        }
+        .sign-out {
+            color: #CD3939;
         }
     }
 

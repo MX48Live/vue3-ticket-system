@@ -12,18 +12,28 @@
                     <a-input v-model:value="formData.password" type="password" placeholder="Ticket Name" />
                     <span class="error-message">Please Password</span>
                 </div>
-                <a-button type="primary" class="submit" @click="handleSignIn" size="large" >Sign In</a-button>
-                <div class="sign-out" @click="handleSignOut" v-if="user">Sign Out</div>
+                <a-button type="primary" class="submit" :class="isLoading ? 'disabled' : '' " @click="handleSignIn" size="large" > 
+                    <span v-if="isLoading">
+                        <loading-outlined />
+                    </span>
+                    <span v-if="!isLoading">
+                        Sign In
+                    </span>
+                </a-button>
         </div>
     </div>
 </template>
 
 <script setup>
-    import { reactive } from 'vue';
-    import { signInWithEmailAndPassword } from "firebase/auth";
-    import { getAuth, signOut } from "firebase/auth"; 
+    import { reactive, ref } from 'vue';
+    import { signInWithEmailAndPassword } from "firebase/auth"
+    import { getAuth, signOut } from "firebase/auth"
+    import { notify } from "@kyvg/vue3-notification"
+    import { LoadingOutlined } from '@ant-design/icons-vue';
+    import router from '@/router';
+
     const auth = getAuth()
-    const user = auth.currentUser
+    const isLoading = ref(false)
 
     const formData = reactive({
       email: '',
@@ -35,25 +45,19 @@
       password: true,
     })
 
-    const handleSignOut = () => {
-        signOut(auth).then(() => {
-            console.log('Signed Out ⚡️')
-        }).catch((error) => {
-            console.log('Can not Sign Out 😵 ')
-        })
-    } 
-
-    const handleSignIn = () => {
-            signInWithEmailAndPassword(auth, formData.email, formData.password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log('Signed In Success ✅')
-            }).catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log('Error code: ', errorCode)
-                console.log('Error Message: ', errorMessage)
-            })
+    const handleSignIn = async () => {
+        isLoading.value = true
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password)
+            const user = await userCredential.user
+            await notify({ type: "success", title: `✅ Sign Out Successful` })
+            await router.push({ path: '/manage-tickets' })
+        } catch (error) {
+            // console.log('Error code: ', error.code)
+            // console.log('Error Message: ', error.message)
+            notify({ type: "error", title: `☹️ Something went wrong, please try again.` })
+        }
+        isLoading.value = false
     }
 
 
@@ -108,6 +112,16 @@
             color: red;
             margin-top: 2px;
             display: block;
+        }
+    }
+
+    button.submit {
+        width: 100%;
+        margin-top: 20px;
+        &.disabled {
+            pointer-events: none;
+            background-color: #ccc;
+            border-color: #ccc;
         }
     }
 </style>

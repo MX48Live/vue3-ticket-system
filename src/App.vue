@@ -12,10 +12,12 @@
     import { onMounted } from "vue";
     import { useLoadTicketList } from "@/use/useLoadTicketList"
     import BootstrapVue3 from 'bootstrap-vue-3'
+    import { listeningAuthenState } from "@/use/useListeningAuthenState"
 
     onMounted(() => {
         console.log('Load Ticket form Firebase 🫣')
         useLoadTicketList()
+        listeningAuthenState()
     })
 </script>
 
