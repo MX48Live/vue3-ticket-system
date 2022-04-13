@@ -56,7 +56,6 @@
 
 <script setup>
 
-    import TicketItem from "@/components/TicketItem.vue"
     import CoverImge from "@/assets/poster.jpg"
     import { agenda } from "@/data/agenda"
     import SelectTicket from "@/components/EventDetails/SelectTicket.vue"
