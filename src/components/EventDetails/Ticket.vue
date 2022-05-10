@@ -5,7 +5,7 @@
         </div>
         <div class="detail-group">
             <div class="ticket-detail">
-                <div class="name" @click="handleSelectItem"  :class="enable ? '' : 'no-pointer'">{{ ticket.name }}</div>
+                <div class="name" @click.prevent="handleSelectItem"  :class="enable ? '' : 'no-pointer'">{{ ticket.name }}</div>
                 <div class="desc">{{ ticket.description }}</div>
                 <div class="status status-date" v-if="ticket.setting_start_date_time || ticket.setting_end_date_time">
                     <span v-if="ticket.start_date_time_utc && ticket.setting_start_date_time">
@@ -35,6 +35,7 @@
             </div>
         </div>
     </div>
+    {{ user_cart.data }}
 </template>
 
 <script setup>
@@ -102,6 +103,7 @@
     const addTicketToCart = () => {   
         const dataToAdd = {
             ticket_id: props.ticket.id,
+            name: props.ticket.name,
             quantity: quantity.value,
             price: props.ticket.price
         }

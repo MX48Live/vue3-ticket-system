@@ -9,6 +9,7 @@
             </div>
         </button>
     </div>
+    {{ user_cart.data.length }}
 </template>
 
 <script setup>
@@ -17,7 +18,8 @@
     import { LoadingOutlined } from '@ant-design/icons-vue'
     import { Modal } from 'ant-design-vue'
     import { useLoadTicketList } from "@/use/useLoadTicketList"
-
+    import { addToOrder } from "@/use/useAddToOrder"
+    import router from "../../router"
     const user_cart = userCart()
     const isLoading = ref(false)
 
@@ -36,12 +38,14 @@
       })
     }
     
-    const condition = true
+    const addDataToOrder = async () => {
+
+    }
+
     const handleBuyButton = async () => {
         await useLoadTicketList()
-
         if(!user_cart.ticket_status.has(false)) {
-            alert('pass ja')
+            addToOrder(user_cart.data)
         } else {
             warning()
             user_cart.clearData()

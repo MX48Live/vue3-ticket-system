@@ -59,7 +59,9 @@
     import CoverImge from "@/assets/poster.jpg"
     import { agenda } from "@/data/agenda"
     import SelectTicket from "@/components/EventDetails/SelectTicket.vue"
-
+    import { userCart } from "@/stores/user_cart"
+    const user_cart = userCart()
+    user_cart.clearData()
 </script>
 
 

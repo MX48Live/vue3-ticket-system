@@ -22,6 +22,10 @@ export const userCart = defineStore({
             let index = this.data.findIndex(item => item.ticket_id === itemID)
             this.data[index].quantity = number
         },
+        updatePrice(itemID, itemPrice) {
+            let index = this.data.findIndex(item => item.ticket_id === itemID)
+            this.data[index].price = itemPrice
+        },
         addTicketStatus(status) {
             this.ticket_status.add(status)
         }

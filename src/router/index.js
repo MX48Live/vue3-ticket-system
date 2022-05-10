@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import EventDetails from "@/pages/EventDetails.vue"
 import ManageTickets from "@/pages/ManageTickets.vue"
 import SignIn from "@/pages/SignIn.vue"
+import CheckOut from "@/pages/CheckOut.vue"
 import { getAuth, signOut } from "firebase/auth"
 import { notify } from "@kyvg/vue3-notification"
 import { authStatus } from "@/stores/auth_status"
@@ -18,6 +19,11 @@ const router = createRouter({
       path: '/sign-in',
       name: 'signin',
       component: SignIn
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckOut
     },
     {
       path: '/manage-tickets',

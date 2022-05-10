@@ -26,3 +26,4 @@ export const useLoadTicketList = async () => {
         // console.log(error)
     }
 }
+
