@@ -11,12 +11,14 @@
                 </div>
                 <div v-if="checkIfData" >
                     <Ticket v-for="ticket in data_tickets.data" :key="ticket.id" :ticket="ticket"/>
-                    <SummaryButton />
+                    <!-- <SummaryButton /> -->
                 </div>
             </div>
         </div>
     </div>
-    {{ user_cart.data }}
+    <pre>
+        {{ user_cart.data }}
+    </pre>
 </template>
 
 <script setup>

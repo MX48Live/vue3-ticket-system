@@ -35,7 +35,7 @@
             </div>
         </div>
     </div>
-    {{ user_cart.data }}
+    <!-- {{ user_cart.data }} -->
 </template>
 
 <script setup>

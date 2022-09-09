@@ -57,8 +57,8 @@
     })
 
     const formData = reactive({
-      email: '',
-      password: '',
+      email: 'mx48live@gmail.com',
+      password: 'D3as3496',
     })
 
     const formValidate = reactive({
