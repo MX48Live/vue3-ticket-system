@@ -8,7 +8,7 @@
       </div>
       
       <div v-if="data_tickets.data !== 0">
-        <Ticket v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
+        <TicketAdmin v-for="ticket in data_tickets.data" :ticket="ticket" :key="ticket.id"/>
       </div>
 
       <div class="container"> 
@@ -26,7 +26,7 @@
 
 <script setup>
     import { ref, reactive, watch, onUpdated, onMounted } from 'vue';
-    import Ticket from '@/components/ManageEvent/Ticket.vue';
+    import TicketAdmin from '@/components/ManageEvent/TicketAdmin.vue';
     import AddEditTicket from '@/components/ManageEvent/AddEditTicket.vue'
     import { dataTickets } from "@/stores/data_tickets"
     import Loading from "@/components/common/Loading.vue"
