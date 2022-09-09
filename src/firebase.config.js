@@ -12,13 +12,13 @@ import { getAuth } from "firebase/auth"
 // }
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_APIKEY,
+  apiKey: "AIzaSyDDM-n7aVE3hBTKRp6RR2dHG_7v1e1uuAg",
   authDomain: "db-vue3-ticket-system.firebaseapp.com",
   projectId: "db-vue3-ticket-system",
   storageBucket: "db-vue3-ticket-system.appspot.com",
-  messagingSenderId: import.meta.env.VITE_MESSAGINGSENDERID,
-  appId: import.meta.env.VITE_APPID
-}
+  messagingSenderId: "33515371579",
+  appId: "1:33515371579:web:4ae8b446c41c213b05701e"
+};
 
 initializeApp(firebaseConfig);
 export const db = getFirestore()
